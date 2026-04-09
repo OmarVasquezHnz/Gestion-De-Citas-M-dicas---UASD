@@ -349,21 +349,21 @@
                     <!-- Grid de 2 filas: Citas de hoy + Gráfico de especialidades -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 flex-1 min-h-0">
                         <!-- Citas de la Semana -->
-                        <div class="bg-white rounded-2xl card-shadow p-6 flex flex-col overflow-hidden fade-in">
-                            <div class="flex items-center gap-3 mb-5">
+                        <div class="bg-white rounded-2xl card-shadow p-4 sm:p-6 flex flex-col overflow-hidden fade-in">
+                            <div class="flex items-start sm:items-center gap-3 mb-5">
                                 <div class="p-2 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-lg">
                                     <span class="material-symbols-outlined text-indigo-600 text-2xl">calendar_view_day</span>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="text-2xl font-bold text-gray-800">Citas del Día</h3>
+                                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800">Citas del Día</h3>
                                     <p id="rangoDia" class="text-sm text-gray-600 mt-1"></p>
-                                    <div class="mt-2 flex items-center gap-2">
+                                    <div class="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
                                         <label for="filtroFechaDia" class="text-sm font-medium text-gray-600">Seleccionar día:</label>
-                                        <input type="date" id="filtroFechaDia" class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                        <input type="date" id="filtroFechaDia" class="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-1 overflow-y-auto pr-2" id="citasPorHoy">
+                            <div class="flex-1 overflow-y-auto pr-0 sm:pr-2" id="citasPorHoy">
                                 <div class="text-center text-gray-500 py-12">
                                     <p><span class="material-symbols-outlined text-6xl opacity-30">event_note</span></p>
                                     <p class="text-sm font-medium mt-3">No hay citas programadas para este día</p>

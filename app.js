@@ -1716,12 +1716,12 @@ function actualizarCitasDia(fechaBase = null) {
                 const medico = dataManager.medicos.find(m => m.id == cita.medico);
                 return `
                     <div class="bg-gradient-to-r from-indigo-50 to-white rounded-xl border-l-4 border-indigo-500 p-4 shadow-sm hover:shadow-lg transition-all hover:border-indigo-600">
-                        <div class="flex justify-between items-start mb-2">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
                             <div>
-                                <p class="font-bold text-indigo-900">${medico ? medico.nombre : 'Médico'}</p>
+                                <p class="font-bold text-indigo-900 break-words">${medico ? medico.nombre : 'Médico'}</p>
                                 <p class="text-xs text-indigo-600 font-semibold tracking-wide">${cita.especialidad || '-'}</p>
                             </div>
-                            <span class="px-3 py-1 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg text-xs font-bold shadow-md">${formatearHora12h(cita.hora)}</span>
+                            <span class="px-3 py-1 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg text-xs font-bold shadow-md self-start">${formatearHora12h(cita.hora)}</span>
                         </div>
                         <p class="text-sm text-gray-700 font-medium mt-3"><span class="text-gray-600">Paciente:</span> ${paciente ? paciente.nombre + ' ' + paciente.apellido : '-'}</p>
                         ${paciente && (paciente.telefono || paciente.matricula) ? `
@@ -1732,9 +1732,9 @@ function actualizarCitasDia(fechaBase = null) {
                         ` : ''}
                         <p class="text-xs text-gray-600 mt-1">Fecha: ${cita.fecha}</p>
                         ${cita.notas ? `<p class="text-xs text-gray-600 mt-2 italic"><span class="font-semibold">Notas:</span> ${cita.notas}</p>` : ''}
-                        <div class="mt-4 flex justify-end gap-2">
-                            <button onclick="cancelarCita(${cita.id})" class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors">Cancelar</button>
-                            <button onclick="completarCita(${cita.id})" class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">Marcar como completa</button>
+                        <div class="mt-4 flex flex-col sm:flex-row sm:justify-end gap-2">
+                            <button onclick="cancelarCita(${cita.id})" class="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors">Cancelar</button>
+                            <button onclick="completarCita(${cita.id})" class="w-full sm:w-auto px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">Marcar como completa</button>
                         </div>
                     </div>
                 `;
