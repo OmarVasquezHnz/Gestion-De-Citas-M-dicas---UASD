@@ -317,6 +317,29 @@ function mostrarNotificacion(titulo, mensaje, tipo = 'success') {
     }, 3000);
 }
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('mobileSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar || !overlay) return;
+
+    const abierto = !sidebar.classList.contains('-translate-x-full');
+    if (abierto) {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    } else {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    }
+}
+
+function cerrarSidebarMovil() {
+    const sidebar = document.getElementById('mobileSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar || !overlay) return;
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+}
+
 // ============================================
 // NAVEGACIÓN
 // ============================================
@@ -337,6 +360,10 @@ function mostrarSeccion(id) {
     const section = document.getElementById(id);
     if (section) {
         section.classList.remove('hidden');
+    }
+
+    if (window.innerWidth < 1024) {
+        cerrarSidebarMovil();
     }
 
     // Actualizar menú activo
@@ -2252,4 +2279,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
     }
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024) {
+            const overlay = document.getElementById('sidebarOverlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+    });
 });
