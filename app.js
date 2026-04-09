@@ -7,6 +7,8 @@ class DataManager {
         this.storageKeys = ['pacientes', 'medicos', 'citas', 'usuarios'];
         this.remoteStorageEnabled = true;
         this.remoteStorageChecked = false;
+        this.seedVersionKey = 'seed_medicos_pacientes_v5';
+        this.seedPushKey = `${this.seedVersionKey}_push`;
 
         // Cargar datos existentes de localStorage
         this.pacientes = this.normalizarArray(this.loadData('pacientes'));
@@ -14,16 +16,81 @@ class DataManager {
         this.citas = this.normalizarArray(this.loadData('citas'));
         this.usuarios = this.normalizarArray(this.loadData('usuarios'));
         
-        // SOLO inicializar datos de prueba si localStorage está VACÍO
-        if (!this.pacientes || this.pacientes.length === 0) {
-            this.pacientes = [
-                { id: 1, nombre: "Pedro", apellido: "Sánchez", cedula: "001-1234567-8", matricula: "2024001", telefono: "809-123-4567", correo: "pedro@email.com" },
-                { id: 2, nombre: "María", apellido: "Fernández", cedula: "002-2345678-9", matricula: "2024002", telefono: "809-234-5678", correo: "maria@email.com" },
-                { id: 3, nombre: "José", apellido: "Ramírez", cedula: "003-3456789-0", matricula: "", telefono: "809-345-6789", correo: "jose@email.com" },
-                { id: 4, nombre: "Carmen", apellido: "Díaz", cedula: "004-4567890-1", matricula: "2024004", telefono: "809-456-7890", correo: "carmen@email.com" },
-                { id: 5, nombre: "Antonio", apellido: "Gómez", cedula: "005-5678901-2", matricula: "2024005", telefono: "809-567-8901", correo: "antonio@email.com" }
-            ];
+        const pacientesSemilla = [
+            { id: 201, nombre: "Luis", apellido: "Paredes", cedula: "001-7812456-2", matricula: "PAC-2026001", fecha: "1992-08-14", telefono: "809-812-4412", correo: "luis.paredes@correo.com", sangre: "O+", direccion: "Santo Domingo Este" },
+            { id: 202, nombre: "Andrea", apellido: "Gómez", cedula: "402-4411287-6", matricula: "PAC-2026002", fecha: "1989-05-22", telefono: "829-334-7715", correo: "andrea.gomez@correo.com", sangre: "A+", direccion: "Santiago" },
+            { id: 203, nombre: "Carlos", apellido: "Reyes", cedula: "031-9922144-9", matricula: "PAC-2026003", fecha: "1998-01-09", telefono: "849-552-9041", correo: "carlos.reyes@correo.com", sangre: "B+", direccion: "La Vega" },
+            { id: 204, nombre: "Pamela", apellido: "Mota", cedula: "223-6674120-1", matricula: "PAC-2026004", fecha: "1994-11-30", telefono: "809-402-1188", correo: "pamela.mota@correo.com", sangre: "AB+", direccion: "San Cristóbal" },
+            { id: 205, nombre: "Jonathan", apellido: "Núñez", cedula: "055-1247780-3", matricula: "PAC-2026005", fecha: "1987-03-16", telefono: "829-771-3304", correo: "jonathan.nunez@correo.com", sangre: "O-", direccion: "San Pedro de Macorís" },
+            { id: 206, nombre: "Katherine", apellido: "Valdez", cedula: "402-1098321-7", matricula: "PAC-2026006", fecha: "1996-06-04", telefono: "849-921-6650", correo: "katherine.valdez@correo.com", sangre: "A-", direccion: "Puerto Plata" },
+            { id: 207, nombre: "Enmanuel", apellido: "Sosa", cedula: "012-9087612-5", matricula: "PAC-2026007", fecha: "1990-09-11", telefono: "809-613-0098", correo: "enmanuel.sosa@correo.com", sangre: "B-", direccion: "Moca" },
+            { id: 208, nombre: "Rosa", apellido: "Tejeda", cedula: "224-5176033-8", matricula: "PAC-2026008", fecha: "1985-12-27", telefono: "829-208-4407", correo: "rosa.tejeda@correo.com", sangre: "AB-", direccion: "Baní" },
+            { id: 209, nombre: "Miguel", apellido: "Lantigua", cedula: "001-3351882-4", matricula: "PAC-2026009", fecha: "1993-04-19", telefono: "849-430-2261", correo: "miguel.lantigua@correo.com", sangre: "O+", direccion: "Bonao" },
+            { id: 210, nombre: "Yamilex", apellido: "Paulino", cedula: "402-7784521-0", matricula: "PAC-2026010", fecha: "2000-02-06", telefono: "809-982-7105", correo: "yamilex.paulino@correo.com", sangre: "A+", direccion: "Higüey" }
+        ];
+
+        const medicosSemilla = [
+            { id: 101, nombre: "Dra. Ángela Sánchez", especialidad: "Ginecología", cedula: "COD-GIN-101", telefono: "809-300-0101", correo: "angela.sanchez@centromedico.do", estado: "activo" },
+            { id: 102, nombre: "Dra. Carmen Barreras", especialidad: "Ginecología", cedula: "COD-GIN-102", telefono: "809-300-0102", correo: "carmen.barreras@centromedico.do", estado: "activo" },
+            { id: 103, nombre: "Dra. Franka Valoy", especialidad: "Ginecología", cedula: "COD-GIN-103", telefono: "809-300-0103", correo: "franka.valoy@centromedico.do", estado: "activo" },
+            { id: 104, nombre: "Dr. Jou Fernández", especialidad: "Ginecología", cedula: "COD-GIN-104", telefono: "809-300-0104", correo: "jou.fernandez@centromedico.do", estado: "activo" },
+            { id: 105, nombre: "Dr. Wilton Martínez", especialidad: "Ginecología", cedula: "COD-GIN-105", telefono: "809-300-0105", correo: "wilton.martinez@centromedico.do", estado: "activo" },
+            { id: 106, nombre: "Dra. Sabrina Paulino", especialidad: "Ginecología", cedula: "COD-GIN-106", telefono: "809-300-0106", correo: "sabrina.paulino@centromedico.do", estado: "activo" },
+            { id: 107, nombre: "Dra. Issa Matos", especialidad: "Pediatría", cedula: "COD-PED-107", telefono: "809-300-0107", correo: "issa.matos@centromedico.do", estado: "activo" },
+            { id: 108, nombre: "Dra. Isabel Castillo", especialidad: "Pediatría", cedula: "COD-PED-108", telefono: "809-300-0108", correo: "isabel.castillo@centromedico.do", estado: "activo" },
+            { id: 109, nombre: "Dra. Johanny Sánchez", especialidad: "Pediatría", cedula: "COD-PED-109", telefono: "809-300-0109", correo: "johanny.sanchez@centromedico.do", estado: "activo" },
+            { id: 110, nombre: "Dra. Marianela Gonzales", especialidad: "Dermatología", cedula: "COD-DER-110", telefono: "809-300-0110", correo: "marianela.gonzales@centromedico.do", estado: "activo" },
+            { id: 111, nombre: "Dr. Juan Pablos Lagos", especialidad: "Oftalmología", cedula: "COD-OFT-111", telefono: "809-300-0111", correo: "juan.lagos@centromedico.do", estado: "activo" },
+            { id: 112, nombre: "Dra. Demester Marchena", especialidad: "Oftalmología", cedula: "COD-OFT-112", telefono: "809-300-0112", correo: "demester.marchena@centromedico.do", estado: "activo" },
+            { id: 113, nombre: "Dr. José Almonte", especialidad: "Otorrinolaringología", cedula: "COD-OTO-113", telefono: "809-300-0113", correo: "jose.almonte@centromedico.do", estado: "activo" },
+            { id: 114, nombre: "Dr. Carlos Calderón", especialidad: "Otorrinolaringología", cedula: "COD-OTO-114", telefono: "809-300-0114", correo: "carlos.calderon@centromedico.do", estado: "activo" },
+            { id: 115, nombre: "Dra. Jamillet Mateo", especialidad: "Gastroenterología", cedula: "COD-GAS-115", telefono: "809-300-0115", correo: "jamillet.mateo@centromedico.do", estado: "activo" },
+            { id: 116, nombre: "Dra. Mildred Pichardo", especialidad: "Gastroenterología", cedula: "COD-GAS-116", telefono: "809-300-0116", correo: "mildred.pichardo@centromedico.do", estado: "activo" },
+            { id: 117, nombre: "Dr. Amaury García", especialidad: "Neurocirugía", cedula: "COD-NEU-117", telefono: "809-300-0117", correo: "amaury.garcia@centromedico.do", estado: "activo" },
+            { id: 118, nombre: "Dra. Patricia Reyna", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-118", telefono: "809-300-0118", correo: "patricia.reyna@centromedico.do", estado: "activo" },
+            { id: 119, nombre: "Dr. Larry Gómez", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-119", telefono: "809-300-0119", correo: "larry.gomez@centromedico.do", estado: "activo" },
+            { id: 120, nombre: "Licda. Ruth Brito", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-120", telefono: "809-300-0120", correo: "ruth.brito@centromedico.do", estado: "activo" },
+            { id: 121, nombre: "Dra. Mercedes Duarte", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-121", telefono: "809-300-0121", correo: "mercedes.duarte@centromedico.do", estado: "activo" },
+            { id: 122, nombre: "Licdo. Jairo Mercedes", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-122", telefono: "809-300-0122", correo: "jairo.mercedes@centromedico.do", estado: "activo" }
+        ];
+
+        const citasSemilla = [
+            { id: 301, paciente: 201, medico: 101, fecha: "2026-04-09", hora: "08:30", especialidad: "Ginecología", estado: "pendiente", notas: "Primera consulta", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 302, paciente: 202, medico: 108, fecha: "2026-04-09", hora: "10:45", especialidad: "Pediatría", estado: "pendiente", notas: "Seguimiento general", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 303, paciente: 203, medico: 110, fecha: "2026-04-10", hora: "09:15", especialidad: "Dermatología", estado: "pendiente", notas: "Evaluación de piel", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 304, paciente: 204, medico: 111, fecha: "2026-04-10", hora: "13:20", especialidad: "Oftalmología", estado: "pendiente", notas: "Control visual", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 305, paciente: 205, medico: 114, fecha: "2026-04-11", hora: "08:50", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Dolor de garganta", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 306, paciente: 206, medico: 115, fecha: "2026-04-11", hora: "11:40", especialidad: "Gastroenterología", estado: "pendiente", notas: "Chequeo digestivo", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 307, paciente: 207, medico: 117, fecha: "2026-04-12", hora: "09:05", especialidad: "Neurocirugía", estado: "pendiente", notas: "Evaluación neurológica", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 308, paciente: 208, medico: 119, fecha: "2026-04-12", hora: "15:10", especialidad: "Psiquiatría / Psicología", estado: "pendiente", notas: "Consulta emocional", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 309, paciente: 209, medico: 106, fecha: "2026-04-13", hora: "08:20", especialidad: "Ginecología", estado: "pendiente", notas: "Consulta de rutina", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 310, paciente: 210, medico: 107, fecha: "2026-04-13", hora: "14:35", especialidad: "Pediatría", estado: "pendiente", notas: "Control periódico", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 311, paciente: 201, medico: 113, fecha: "2026-04-14", hora: "09:40", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Molestias de oído", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 312, paciente: 204, medico: 116, fecha: "2026-04-14", hora: "16:00", especialidad: "Gastroenterología", estado: "pendiente", notas: "Revisión de resultados", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() }
+        ];
+
+        if (localStorage.getItem(this.seedVersionKey) !== 'done') {
+            this.pacientes = pacientesSemilla;
+            this.medicos = medicosSemilla;
+            this.citas = citasSemilla;
+            localStorage.setItem(this.seedVersionKey, 'done');
+            localStorage.setItem(this.seedPushKey, 'pending');
             this.saveData('pacientes', this.pacientes);
+            this.saveData('medicos', this.medicos);
+            this.saveData('citas', this.citas);
+        } else {
+            if (!this.pacientes || this.pacientes.length === 0) {
+                this.pacientes = pacientesSemilla;
+                this.saveData('pacientes', this.pacientes);
+            }
+            if (!this.medicos || this.medicos.length === 0) {
+                this.medicos = medicosSemilla;
+                this.saveData('medicos', this.medicos);
+            }
+            if (!this.citas || this.citas.length === 0) {
+                this.citas = citasSemilla;
+                this.saveData('citas', this.citas);
+            }
         }
 
         this.pacientes = this.pacientes.map(paciente => {
@@ -36,29 +103,16 @@ class DataManager {
         });
         this.saveData('pacientes', this.pacientes);
         
-        if (!this.medicos || this.medicos.length === 0) {
-            this.medicos = [
-                { id: 1, nombre: "Dr. Juan Pérez", especialidad: "Cardiología", estado: "activo" },
-                { id: 2, nombre: "Dra. María García", especialidad: "Pediatría", estado: "activo" },
-                { id: 3, nombre: "Dr. Carlos López", especialidad: "Dermatología", estado: "activo" },
-                { id: 4, nombre: "Dra. Ana Rodríguez", especialidad: "Oftalmología", estado: "activo" },
-                { id: 5, nombre: "Dr. Luis Martínez", especialidad: "Neurocirugía", estado: "activo" }
-            ];
-            this.saveData('medicos', this.medicos);
-        }
-        
         if (!this.citas || this.citas.length === 0) {
-            this.citas = [
-                { id: 1, paciente: 2, medico: 1, fecha: "2026-03-29", hora: "09:00", especialidad: "Cardiología", estado: "completada" },
-                { id: 2, paciente: 3, medico: 2, fecha: "2026-03-30", hora: "10:30", especialidad: "Pediatría", estado: "completada" },
-                { id: 3, paciente: 4, medico: 3, fecha: "2026-03-31", hora: "14:00", especialidad: "Dermatología", estado: "completada" },
-                { id: 4, paciente: 5, medico: 4, fecha: "2026-04-01", hora: "11:15", especialidad: "Oftalmología", estado: "cancelada" },
-                { id: 5, paciente: 1, medico: 5, fecha: "2026-04-02", hora: "16:45", especialidad: "Neurocirugía", estado: "completada" },
-                { id: 6, paciente: 2, medico: 1, fecha: "2026-04-03", hora: "08:30", especialidad: "Cardiología", estado: "cancelada" },
-                { id: 7, paciente: 3, medico: 2, fecha: "2026-04-04", hora: "13:00", especialidad: "Pediatría", estado: "completada" }
-            ];
+            this.citas = citasSemilla;
             this.saveData('citas', this.citas);
         }
+
+        this.citas = this.citas.map(cita => ({
+            ...cita,
+            estado: (cita.estado || 'pendiente').trim().toLowerCase()
+        }));
+        this.saveData('citas', this.citas);
 
         const usuariosPermitidos = ['admin1', 'admin2'];
         this.usuarios = this.usuarios.filter(u => usuariosPermitidos.includes(u.username));
@@ -125,6 +179,13 @@ class DataManager {
 
     async sincronizarConBaseDatos() {
         if (!this.remoteStorageEnabled) return;
+
+        if (localStorage.getItem(this.seedPushKey) === 'pending') {
+            await this.saveDataRemota('pacientes', this.pacientes);
+            await this.saveDataRemota('medicos', this.medicos);
+            await this.saveDataRemota('citas', this.citas);
+            localStorage.setItem(this.seedPushKey, 'done');
+        }
 
         for (const key of this.storageKeys) {
             const remoto = await this.fetchStorageRemoto(key);
@@ -937,7 +998,7 @@ async function guardarCita() {
             hora,
             especialidad,
             notas,
-            estado: '',
+            estado: 'pendiente',
             accion: 'Creada',
             accionPor: localStorage.getItem('loggedInUser') || '-',
             accionAt: new Date().toISOString()
@@ -1079,12 +1140,9 @@ function actualizarGridMedicos() {
 
     const totalMedicos = document.getElementById('medicosTotal');
     const totalEspecialidades = document.getElementById('medicosEspecialidades');
-    const totalConContacto = document.getElementById('medicosConContacto');
     const especialidadesUnicas = new Set(dataManager.medicos.map(m => (m.especialidad || '').trim()).filter(Boolean));
-    const conContacto = dataManager.medicos.filter(m => (m.telefono || '').trim() || (m.correo || '').trim()).length;
     if (totalMedicos) totalMedicos.textContent = String(dataManager.medicos.length);
     if (totalEspecialidades) totalEspecialidades.textContent = String(especialidadesUnicas.size);
-    if (totalConContacto) totalConContacto.textContent = String(conContacto);
     
     if (medicosFiltrados.length === 0) {
         grid.innerHTML = '<div class="bg-white rounded-2xl card-shadow p-6 text-center col-span-3 py-12"><span class="material-symbols-outlined text-6xl opacity-30 block mb-3 mx-auto">stethoscope</span><p class="text-gray-500 font-medium">No hay médicos registrados</p></div>';
@@ -1442,7 +1500,7 @@ function actualizarTablaCitas() {
                         c.estado === 'completada' ? 'bg-green-100 text-green-800' :
                         c.estado === 'cancelada' ? 'bg-red-100 text-red-800' :
                         'bg-gray-100 text-gray-800'
-                    }">${c.estado || 'Sin estado'}</span>
+                    }">${c.estado || 'pendiente'}</span>
                 </td>
                 <td class="px-6 py-4">
                     <span class="block font-semibold text-gray-700 text-xs">${accionTexto}</span>
@@ -1490,7 +1548,7 @@ function exportarCitasFiltradasCSV() {
             c.especialidad || '-',
             c.fecha || '-',
             formatearHora12h(c.hora) || '-',
-            c.estado || '-',
+            c.estado || 'pendiente',
             (c.notas || '-').replace(/\n/g, ' '),
             c.accion || 'Creada',
             c.accionPor || '-',
@@ -1757,7 +1815,7 @@ function actualizarCitasPasadas() {
                     <div class="p-4 rounded-xl border border-indigo-100 bg-indigo-50">
                         <div class="flex justify-between items-start">
                             <p class="font-bold text-indigo-900">${medico ? medico.nombre : 'Médico'}</p>
-                            <span class="text-xs font-semibold ${claseEstado}">${cita.estado || 'pasada'}</span>
+                            <span class="text-xs font-semibold ${claseEstado}">${cita.estado || 'pendiente'}</span>
                         </div>
                         <p class="text-sm text-gray-700 mt-1"><strong>Paciente:</strong> ${paciente ? paciente.nombre + ' ' + paciente.apellido : '-'}</p>
                         <p class="text-sm text-gray-700"><strong>Fecha:</strong> ${cita.fecha} - <strong>Hora:</strong> ${formatearHora12h(cita.hora)}</p>
@@ -1818,7 +1876,7 @@ function exportarCitasPasadasCSV() {
             c.especialidad || '-',
             c.fecha || '-',
             formatearHora12h(c.hora) || '-',
-            c.estado || '-',
+            c.estado || 'pendiente',
             (c.notas || '-').replace(/\n/g, ' '),
             c.accion || 'Creada',
             c.accionPor || '-',
