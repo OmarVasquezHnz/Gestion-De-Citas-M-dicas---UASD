@@ -9,7 +9,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&family=Poppins:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- html2canvas + jsPDF para exportar gráficos a PDF -->
@@ -17,30 +17,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-tRzXUQh3WMVJ3VJS5jorY6j0+ZfJu0BxnpQyB4PZft7oi7bXPYYhQp3FRDApIlaCeXgEC+j6gW7m2Xy3eJlJ2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
     <style>
-        :root {
-            --bg-soft: #f4f7ff;
-            --bg-deep: #0f172a;
-            --ink: #0f172a;
-            --ink-soft: #475569;
-            --brand-1: #4f46e5;
-            --brand-2: #0ea5e9;
-            --brand-3: #14b8a6;
-            --line: #dbe5ff;
-            --surface: rgba(255, 255, 255, 0.86);
-            --surface-strong: #ffffff;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.35rem;
-            --shadow-soft: 0 12px 35px rgba(15, 23, 42, 0.08);
-            --shadow-strong: 0 24px 45px rgba(79, 70, 229, 0.18);
-        }
-
         * {
             font-family: 'Poppins', sans-serif;
-        }
-
-        h1, h2, h3, .font-black {
-            font-family: 'Space Grotesk', 'Poppins', sans-serif;
-            letter-spacing: -0.02em;
         }
 
         .material-symbols-outlined {
@@ -78,15 +56,6 @@
             }
         }
         
-        body {
-            background:
-                radial-gradient(circle at 10% 10%, rgba(79, 70, 229, 0.08), transparent 35%),
-                radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.08), transparent 30%),
-                radial-gradient(circle at 40% 80%, rgba(20, 184, 166, 0.06), transparent 35%),
-                var(--bg-soft);
-            color: var(--ink);
-        }
-
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -104,27 +73,11 @@
         /* Smooth transitions para botones */
         button {
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border-radius: 0.9rem;
         }
 
         /* Glow effect para elementos interactivos */
         .nav-link {
             transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            left: -0.25rem;
-            top: 0.5rem;
-            bottom: 0.5rem;
-            width: 3px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.95);
-            opacity: 0;
-            transform: scaleY(0.2);
-            transition: all 0.25s ease;
         }
 
         .nav-link:not(.bg-indigo-700):hover {
@@ -132,18 +85,11 @@
             transform: translateX(4px);
         }
 
-        .nav-link.bg-indigo-700::before {
-            opacity: 1;
-            transform: scaleY(1);
-        }
-
         /* KPI Cards enhanced */
         .kpi-card {
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            backdrop-filter: blur(4px);
         }
 
         .kpi-card::before {
@@ -166,7 +112,7 @@
         .section-title {
             font-size: 2rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #0f172a 0%, #4f46e5 45%, #0ea5e9 100%);
+            background: linear-gradient(135deg, #1f2937 0%, #4f46e5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -175,15 +121,11 @@
 
         /* Enhanced card shadows */
         .card-shadow {
-            background: var(--surface);
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--line);
-            backdrop-filter: blur(6px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.05);
         }
 
         .card-shadow:hover {
-            box-shadow: var(--shadow-strong);
-            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15), 0 0 1px rgba(0, 0, 0, 0.05);
         }
 
         /* Button hover glow */
@@ -197,74 +139,16 @@
         }
 
         /* Input focus enhanced */
-        input, select, textarea {
-            border-color: #dbeafe;
-            background: #ffffff;
-        }
-
         input:focus, select:focus, textarea:focus {
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1), inset 0 0 0 1px #4f46e5;
-        }
-
-        #main-app > div > aside {
-            border-right: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 16px 0 35px rgba(15, 23, 42, 0.22);
-        }
-
-        #main-app nav {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.82);
-        }
-
-        .section-container {
-            animation: fadeIn 0.35s ease;
-        }
-
-        table thead th {
-            text-transform: uppercase;
-            letter-spacing: 0.09em;
-        }
-
-        table tbody tr {
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-
-        table tbody tr:hover {
-            background: #f8fbff;
-        }
-
-        #modalUsuario > div,
-        #modalPaciente > div,
-        #modalMedico > div,
-        #modalCita > div,
-        #modalRecuperarContrasena > div {
-            border: 1px solid #dbeafe;
-            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.25);
-        }
-
-        #notificacion {
-            background: linear-gradient(130deg, #ffffff 0%, #f6f9ff 100%);
-            border: 1px solid #dbeafe;
-        }
-
-        @media (max-width: 1023px) {
-            .section-title {
-                font-size: 1.65rem;
-            }
-
-            .kpi-card h3 {
-                font-size: 2.25rem;
-            }
         }
     </style>
 </head>
 <body class="bg-gray-50">
 
     <!-- LOGIN SECTION -->
-    <div id="login-section" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-700 via-violet-700 to-cyan-600 relative overflow-hidden">
-        <div class="absolute -top-20 -left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-24 -right-16 w-80 h-80 bg-cyan-300/20 rounded-full blur-3xl"></div>
-        <div class="bg-white/92 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-md mx-4 border border-white/60 relative z-10">
+    <div id="login-section" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+        <div class="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 w-full max-w-md mx-4">
             <div class="text-center mb-8">
                 <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <span class="material-symbols-outlined text-3xl text-white">medical_services</span>
@@ -515,39 +399,37 @@
 
                 <!-- PACIENTES -->
                 <section id="pacientes" class="section-container hidden overflow-y-auto">
-                    <div class="bg-gradient-to-r from-slate-900 via-indigo-900 to-blue-900 rounded-3xl p-6 sm:p-8 mb-6 text-white fade-in">
-                        <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
-                            <div>
-                                <p class="text-xs uppercase tracking-[0.25em] text-indigo-200 font-semibold mb-2">Módulo Clínico</p>
-                                <h1 class="text-3xl font-black mb-2">Pacientes</h1>
-                                <p class="text-indigo-100 text-sm font-medium">Gestiona expedientes, contacto y trazabilidad de acciones en una sola vista.</p>
-                            </div>
-                            <button onclick="abrirModalPaciente()" class="bg-white text-indigo-900 px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-indigo-50 transition-colors w-full sm:w-auto">
-                                <span class="material-symbols-outlined">person_add</span>
-                                Nuevo Paciente
-                            </button>
+                    <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start mb-8 fade-in">
+                        <div>
+                            <h1 class="section-title mb-2">Pacientes</h1>
+                            <p class="text-gray-600 text-sm font-medium">Gestionar y administrar pacientes del sistema</p>
                         </div>
+                        <button onclick="abrirModalPaciente()" class="btn-glow bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg whitespace-nowrap w-full sm:w-auto">
+                            <span class="material-symbols-outlined">person_add</span>
+                            Nuevo Paciente
+                        </button>
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-indigo-100 card-shadow p-4 sm:p-5 mb-6 fade-in">
-                        <label for="searchPaciente" class="block text-xs font-bold tracking-widest text-indigo-900 mb-2">BUSCAR PACIENTE</label>
-                        <input type="text" placeholder="Escribe nombre o cédula..." id="searchPaciente" class="w-full px-4 py-3 border-2 border-indigo-100 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors font-medium text-gray-700 placeholder-gray-400">
+                    <!-- Búsqueda -->
+                    <div class="bg-white rounded-2xl card-shadow p-4 mb-6 fade-in">
+                        <input type="text" placeholder="Buscar paciente por nombre o cédula..." id="searchPaciente" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors font-medium text-gray-700 placeholder-gray-400">
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-indigo-100 card-shadow overflow-x-auto fade-in">
+                    <!-- Tabla -->
+                    <div class="bg-white rounded-2xl card-shadow overflow-x-auto fade-in">
                         <table class="w-full min-w-[920px]">
-                            <thead class="bg-gradient-to-r from-slate-50 to-indigo-50 border-b border-indigo-100">
+                            <thead class="bg-gradient-to-r from-indigo-50 to-indigo-100 border-b-2 border-indigo-200">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">NOMBRE</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">CÉDULA</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">MATRÍCULA</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">TELÉFONO</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">CORREO</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">REALIZADO POR</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">ACCIONES</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">NOMBRE</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">CÉDULA</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">MATRÍCULA</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">TELÉFONO</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">CORREO</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">REALIZADO POR</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">ACCIONES</th>
                                 </tr>
                             </thead>
-                            <tbody id="tablaPacientes" class="divide-y divide-gray-100">
+                            <tbody id="tablaPacientes" class="divide-y divide-gray-100 hover:bg-indigo-50">
                                 <tr>
                                     <td colspan="7" class="px-6 py-12 text-center text-gray-500 font-medium">
                                         <span class="material-symbols-outlined text-5xl opacity-30 block mb-3">person_outline</span>
@@ -561,42 +443,39 @@
 
                 <!-- MÉDICOS -->
                 <section id="medicos" class="section-container hidden overflow-y-auto">
-                    <div class="bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 rounded-3xl p-6 sm:p-8 mb-6 text-white fade-in">
-                        <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
-                            <div>
-                                <p class="text-xs uppercase tracking-[0.25em] text-emerald-100 font-semibold mb-2">Directorio Profesional</p>
-                                <h1 class="text-3xl font-black mb-2">Médicos y Especialistas</h1>
-                                <p class="text-emerald-50 text-sm font-medium">Vista clara por especialidad, contacto y actividad reciente del equipo médico.</p>
-                            </div>
-                            <button onclick="abrirModalMedico()" class="bg-white text-teal-900 px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-emerald-50 transition-colors w-full sm:w-auto">
-                                <span class="material-symbols-outlined">person_add</span>
-                                Nuevo Médico
-                            </button>
+                    <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start mb-8 fade-in">
+                        <div>
+                            <h1 class="section-title mb-2">Médicos y Especialistas</h1>
+                            <p class="text-gray-600 text-sm font-medium">Directorio clínico moderno con enfoque en especialidades y disponibilidad</p>
                         </div>
+                        <button onclick="abrirModalMedico()" class="btn-glow bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg whitespace-nowrap w-full sm:w-auto">
+                            <span class="material-symbols-outlined">person_add</span>
+                            Nuevo Médico
+                        </button>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 fade-in">
-                        <div class="bg-white rounded-2xl card-shadow p-5 border border-indigo-100">
+                        <div class="bg-white rounded-2xl card-shadow p-4 border border-indigo-100">
                             <p class="text-xs font-semibold tracking-widest text-gray-500 uppercase">Médicos Registrados</p>
                             <p id="medicosTotal" class="text-3xl font-black text-indigo-700 mt-2">0</p>
                         </div>
-                        <div class="bg-white rounded-2xl card-shadow p-5 border border-emerald-100">
+                        <div class="bg-white rounded-2xl card-shadow p-4 border border-emerald-100">
                             <p class="text-xs font-semibold tracking-widest text-gray-500 uppercase">Especialidades Cubiertas</p>
                             <p id="medicosEspecialidades" class="text-3xl font-black text-emerald-700 mt-2">0</p>
                         </div>
-                        <div class="bg-white rounded-2xl card-shadow p-5 border border-amber-100">
+                        <div class="bg-white rounded-2xl card-shadow p-4 border border-amber-100">
                             <p class="text-xs font-semibold tracking-widest text-gray-500 uppercase">Contacto Completo</p>
                             <p id="medicosConContacto" class="text-3xl font-black text-amber-700 mt-2">0</p>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-indigo-100 card-shadow p-4 sm:p-5 mb-6 fade-in">
+                    <div class="bg-white rounded-2xl card-shadow p-5 mb-6 fade-in border border-indigo-100">
                         <label for="searchMedico" class="block text-xs font-bold tracking-widest text-indigo-900 mb-2">BUSCAR MÉDICO O ESPECIALIDAD</label>
-                        <input type="text" placeholder="Ej: cardiología, juan pérez..." id="searchMedico" class="w-full px-4 py-3 border-2 border-indigo-100 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors font-medium text-gray-700 placeholder-gray-400">
+                        <input type="text" placeholder="Ej: cardiología, juan pérez..." id="searchMedico" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-colors font-medium text-gray-700 placeholder-gray-400">
                     </div>
 
                     <div id="gridMedicos" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 fade-in pb-4">
-                        <div class="bg-white rounded-2xl card-shadow p-6 text-center flex items-center justify-center h-64 border border-indigo-100">
+                        <div class="bg-white rounded-2xl card-shadow p-6 text-center flex items-center justify-center h-64">
                             <div class="text-gray-500">
                                 <span class="material-symbols-outlined text-5xl opacity-30 block mb-3">stethoscope</span>
                                 <p class="font-medium">No hay médicos registrados</p>
@@ -607,20 +486,17 @@
 
                 <!-- CITAS -->
                 <section id="citas" class="section-container hidden overflow-y-auto">
-                    <div class="bg-gradient-to-r from-violet-700 via-indigo-700 to-blue-700 rounded-3xl p-6 sm:p-8 mb-6 text-white fade-in">
-                        <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
-                            <div>
-                                <p class="text-xs uppercase tracking-[0.25em] text-violet-100 font-semibold mb-2">Agenda Inteligente</p>
-                                <h1 class="text-3xl font-black mb-2">Citas Médicas</h1>
-                                <p class="text-indigo-100 text-sm font-medium">Programa, filtra y exporta tu operación diaria con una interfaz rápida y clara.</p>
-                            </div>
-                            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                                <button onclick="exportarCitasFiltradasCSV()" class="px-4 py-3 rounded-xl font-bold bg-white/15 border border-white/30 text-white hover:bg-white/25 transition-colors">Exportar CSV</button>
-                                <button onclick="abrirModalCita()" class="px-6 py-3 rounded-xl font-bold bg-white text-indigo-900 flex items-center justify-center gap-2 shadow-xl hover:bg-indigo-50 transition-colors">
-                                    <span class="material-symbols-outlined">add_circle</span>
-                                    Nueva Cita
-                                </button>
-                            </div>
+                    <div class="flex flex-col gap-4 mb-8 fade-in">
+                        <div>
+                            <h1 class="section-title mb-2">Citas Médicas</h1>
+                            <p class="text-gray-600 text-sm font-medium">Programación inteligente con filtros esenciales y visión clara del flujo diario</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <button onclick="exportarCitasFiltradasCSV()" class="px-4 py-3 border-2 border-indigo-300 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors font-bold">Exportar CSV</button>
+                            <button onclick="abrirModalCita()" class="btn-glow bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
+                                <span class="material-symbols-outlined">add_circle</span>
+                                Nueva Cita
+                            </button>
                         </div>
                     </div>
 
@@ -653,17 +529,17 @@
                         <p id="resumenFiltroCitas" class="text-sm text-gray-600 mt-3 font-medium">Mostrando todas las citas</p>
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-indigo-100 card-shadow overflow-x-auto fade-in">
+                    <div class="bg-white rounded-2xl card-shadow overflow-x-auto fade-in">
                         <table class="w-full min-w-[980px]">
-                            <thead class="bg-gradient-to-r from-slate-50 to-indigo-50 border-b border-indigo-100">
+                            <thead class="bg-gradient-to-r from-indigo-50 to-indigo-100 border-b-2 border-indigo-200">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">PACIENTE</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">MÉDICO</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">FECHA</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">HORA</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">ESTADO</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">REALIZADO POR</th>
-                                    <th class="px-6 py-4 text-left text-[11px] font-black text-indigo-900 tracking-widest">ACCIONES</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">PACIENTE</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">MÉDICO</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">FECHA</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">HORA</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">ESTADO</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">REALIZADO POR</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-indigo-900 tracking-widest">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody id="tablaCitas" class="divide-y divide-gray-100">
@@ -678,7 +554,7 @@
                     </div>
                     <div id="paginacionCitasActuales" class="mt-4 flex flex-wrap gap-2"></div>
 
-                    <div class="bg-white rounded-2xl border border-indigo-100 card-shadow mt-6 p-6 fade-in">
+                    <div class="bg-white rounded-2xl card-shadow mt-6 p-6 fade-in">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Citas Pasadas</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                             <input type="text" id="filtroCitasPasadasTexto" placeholder="Buscar paciente, médico o especialidad" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
