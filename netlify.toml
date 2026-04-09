@@ -1,5 +1,16 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/notificaciones/cita"
+  to = "/.netlify/functions/notificaciones-cita"
+  status = 200
+
+[[redirects]]
+  from = "/api/storage"
+  to = "/.netlify/functions/data-store"
+  status = 200
 
 [[redirects]]
   from = "/*"

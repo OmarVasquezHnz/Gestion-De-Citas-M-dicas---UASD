@@ -4,6 +4,10 @@
 
 class DataManager {
     constructor() {
+        this.storageKeys = ['pacientes', 'medicos', 'citas', 'usuarios'];
+        this.remoteStorageEnabled = true;
+        this.remoteStorageChecked = false;
+
         // Cargar datos existentes de localStorage
         this.pacientes = this.normalizarArray(this.loadData('pacientes'));
         this.medicos = this.normalizarArray(this.loadData('medicos'));
@@ -21,6 +25,16 @@ class DataManager {
             ];
             this.saveData('pacientes', this.pacientes);
         }
+
+        this.pacientes = this.pacientes.map(paciente => {
+            if (!paciente || typeof paciente !== 'object') return paciente;
+            const correoNormalizado = (paciente.correo || paciente.email || '').trim();
+            return {
+                ...paciente,
+                correo: correoNormalizado
+            };
+        });
+        this.saveData('pacientes', this.pacientes);
         
         if (!this.medicos || this.medicos.length === 0) {
             this.medicos = [
@@ -46,15 +60,19 @@ class DataManager {
             this.saveData('citas', this.citas);
         }
 
-        if (!this.usuarios || this.usuarios.length === 0) {
-            this.usuarios = [
-                { id: 1, nombre: 'Administrador Principal', username: 'admin1', correo: 'admin1@centromedico.local', rol: 'admin', estado: 'activo', password: '12345', ultimoAcceso: null, createdAt: new Date().toISOString() },
-                { id: 2, nombre: 'Administrador Secundario', username: 'admin2', correo: 'admin2@centromedico.local', rol: 'admin', estado: 'activo', password: '123456', ultimoAcceso: null, createdAt: new Date().toISOString() },
-                { id: 3, nombre: 'Recepción General', username: 'recepcion1', correo: 'recepcion@centromedico.local', rol: 'recepcion', estado: 'activo', password: 'recep123', ultimoAcceso: null, createdAt: new Date().toISOString() },
-                { id: 4, nombre: 'Dr. Guardia', username: 'doctor1', correo: 'doctor@centromedico.local', rol: 'doctor', estado: 'activo', password: 'doc123', ultimoAcceso: null, createdAt: new Date().toISOString() }
-            ];
-            this.saveData('usuarios', this.usuarios);
-        }
+        const usuariosPermitidos = ['admin1', 'admin2'];
+        this.usuarios = this.usuarios.filter(u => usuariosPermitidos.includes(u.username));
+
+        const defaultUsuarios = [
+            { id: 1, nombre: 'Administrador Principal', username: 'admin1', correo: 'admin1@centromedico.local', rol: 'admin', estado: 'activo', password: '12345', ultimoAcceso: null, createdAt: new Date().toISOString() },
+            { id: 2, nombre: 'Administrador Secundario', username: 'admin2', correo: 'admin2@centromedico.local', rol: 'admin', estado: 'activo', password: '123456', ultimoAcceso: null, createdAt: new Date().toISOString() }
+        ];
+        defaultUsuarios.forEach(def => {
+            if (!this.usuarios.find(u => u.username === def.username)) {
+                this.usuarios.push(def);
+            }
+        });
+        this.saveData('usuarios', this.usuarios);
     }
 
     loadData(key) {
@@ -67,6 +85,58 @@ class DataManager {
 
     saveData(key, data) {
         localStorage.setItem(key, JSON.stringify(data));
+        this.saveDataRemota(key, data);
+    }
+
+    async fetchStorageRemoto(key) {
+        if (!this.remoteStorageEnabled) return { ok: false };
+
+        try {
+            const response = await fetch(`/api/storage?key=${encodeURIComponent(key)}`);
+            if (!response.ok) return { ok: false };
+            const result = await response.json();
+            this.remoteStorageChecked = true;
+            return { ok: !!result.ok, value: result.value };
+        } catch (error) {
+            this.remoteStorageEnabled = false;
+            return { ok: false };
+        }
+    }
+
+    async saveDataRemota(key, data) {
+        if (!this.remoteStorageEnabled) return;
+        if (!this.storageKeys.includes(key)) return;
+
+        try {
+            const response = await fetch(`/api/storage?key=${encodeURIComponent(key)}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ value: data })
+            });
+            if (!response.ok) {
+                this.remoteStorageEnabled = false;
+            }
+        } catch (error) {
+            this.remoteStorageEnabled = false;
+        }
+    }
+
+    async sincronizarConBaseDatos() {
+        if (!this.remoteStorageEnabled) return;
+
+        for (const key of this.storageKeys) {
+            const remoto = await this.fetchStorageRemoto(key);
+            const local = this.normalizarArray(this.loadData(key));
+
+            if (remoto.ok && Array.isArray(remoto.value)) {
+                this[key] = this.normalizarArray(remoto.value);
+                localStorage.setItem(key, JSON.stringify(this[key]));
+            } else if (local.length > 0) {
+                await this.saveDataRemota(key, local);
+            }
+        }
     }
 
     normalizarArray(data) {
@@ -177,6 +247,43 @@ function obtenerLimiteEspecialidadDia() {
     return Number.isNaN(limite) || limite < 1 ? 6 : limite;
 }
 
+function correoValido(correo) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(correo || '').trim());
+}
+
+async function enviarCorreoConfirmacionCita(cita) {
+    const paciente = dataManager.pacientes.find(p => String(p.id) === String(cita.paciente));
+    const medico = dataManager.medicos.find(m => String(m.id) === String(cita.medico));
+    const correoPaciente = (paciente?.correo || paciente?.email || '').trim();
+
+    if (!correoPaciente) {
+        return { ok: false, message: 'El paciente no tiene correo registrado' };
+    }
+
+    const response = await fetch('/api/notificaciones/cita', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            destinatario: correoPaciente,
+            pacienteNombre: `${paciente.nombre || ''} ${paciente.apellido || ''}`.trim(),
+            medicoNombre: medico?.nombre || 'Médico asignado',
+            fecha: cita.fecha,
+            hora: formatearHora12h(cita.hora),
+            especialidad: cita.especialidad,
+            notas: cita.notas || ''
+        })
+    });
+
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(result.message || 'No se pudo enviar el correo');
+    }
+
+    return { ok: true };
+}
+
 function contarCitasEspecialidadDia(especialidad, fecha, citaExcluirId = null) {
     return dataManager.citas.filter(cita => {
         if (citaExcluirId && cita.id === citaExcluirId) return false;
@@ -215,6 +322,12 @@ function mostrarNotificacion(titulo, mensaje, tipo = 'success') {
 // ============================================
 
 function mostrarSeccion(id) {
+    const rolActual = localStorage.getItem('loggedInRol') || '';
+    if (rolActual !== 'admin' && (id === 'medicos' || id === 'usuarios')) {
+        mostrarNotificacion('Acceso Restringido', 'Solo el administrador puede acceder a esta sección', 'error');
+        return;
+    }
+
     // Ocultar todas las secciones
     document.querySelectorAll('.section-container').forEach(sec => {
         sec.classList.add('hidden');
@@ -274,6 +387,16 @@ function initCharts() {
             charts.especialidades.destroy();
         }
 
+        const fechaDesde = document.getElementById('chartFechaDesde')?.value || '';
+        const fechaHasta = document.getElementById('chartFechaHasta')?.value || '';
+
+        const citasFiltradas = dataManager.citas.filter(cita => {
+            const fecha = cita.fecha || '';
+            if (fechaDesde && fecha < fechaDesde) return false;
+            if (fechaHasta && fecha > fechaHasta) return false;
+            return true;
+        });
+
         // Contar citas por especialidad
         const especialidades = {
             'Cardiología': 0,
@@ -283,7 +406,7 @@ function initCharts() {
             'Neurocirugía': 0
         };
         
-        dataManager.citas.forEach(cita => {
+        citasFiltradas.forEach(cita => {
             const especialidad = (cita.especialidad || '').trim() || 'Sin especialidad';
             if (!Object.prototype.hasOwnProperty.call(especialidades, especialidad)) {
                 especialidades[especialidad] = 0;
@@ -331,6 +454,14 @@ function initCharts() {
     }
 }
 
+function limpiarFiltroChart() {
+    const desde = document.getElementById('chartFechaDesde');
+    const hasta = document.getElementById('chartFechaHasta');
+    if (desde) desde.value = '';
+    if (hasta) hasta.value = '';
+    initCharts();
+}
+
 async function cargarJSPDFSiNecesario() {
     if (window.jspdf || window.jsPDF) {
         return;
@@ -360,10 +491,20 @@ async function generarPDFEspecialidad() {
         throw error;
     });
 
-    const totalCitas = dataManager.citas.length;
+    const fechaDesde = document.getElementById('chartFechaDesde')?.value || '';
+    const fechaHasta = document.getElementById('chartFechaHasta')?.value || '';
+
+    const citasFiltradas = dataManager.citas.filter(cita => {
+        const fecha = cita.fecha || '';
+        if (fechaDesde && fecha < fechaDesde) return false;
+        if (fechaHasta && fecha > fechaHasta) return false;
+        return true;
+    });
+
+    const totalCitas = citasFiltradas.length;
     const especialidades = {};
 
-    dataManager.citas.forEach(cita => {
+    citasFiltradas.forEach(cita => {
         const esp = cita.especialidad || 'Sin Especialidad';
         especialidades[esp] = (especialidades[esp] || 0) + 1;
     });
@@ -411,9 +552,13 @@ async function generarPDFEspecialidad() {
 
         pdf.setFontSize(11);
         pdf.text(`Generado: ${timestamp}`, margin, cursorY + 20);
-        pdf.text(`Total de citas: ${totalCitas}`, margin, cursorY + 36);
+        const rangoTexto = (fechaDesde || fechaHasta)
+            ? `Rango: ${fechaDesde || 'inicio'} — ${fechaHasta || 'fin'}`
+            : 'Rango: Todas las fechas';
+        pdf.text(rangoTexto, margin, cursorY + 36);
+        pdf.text(`Total de citas: ${totalCitas}`, margin, cursorY + 52);
 
-        cursorY += 60;
+        cursorY += 76;
 
         pdf.setFontSize(12);
         pdf.text('Citas por especialidad:', margin, cursorY);
@@ -577,11 +722,9 @@ function cerrarModalCita() {
     document.getElementById('citaHoraNum').value = '12';
     document.getElementById('citaMinutoNum').value = '00';
     document.getElementById('citaPeriodo').value = 'PM';
-    document.getElementById('citaEspecialidad').value = '';
     document.getElementById('citaNotas').value = '';
     document.getElementById('citaPaciente').disabled = false;
     document.getElementById('citaMedico').disabled = false;
-    document.getElementById('citaEspecialidad').disabled = false;
     citaEnEdicionId = null;
     modoEdicionCita = 'crear';
 }
@@ -594,9 +737,15 @@ function guardarPaciente() {
     const nombre = document.getElementById('pacNombre').value.trim();
     const apellido = document.getElementById('pacApellido').value.trim();
     const cedula = document.getElementById('pacCedula').value.trim();
+    const correo = document.getElementById('pacCorreo').value.trim();
 
     if (!nombre || !apellido || !cedula) {
         mostrarNotificacion('Error', 'Por favor completa los campos requeridos', 'error');
+        return;
+    }
+
+    if (correo && !correoValido(correo)) {
+        mostrarNotificacion('Error', 'Ingresa un correo valido para el paciente', 'error');
         return;
     }
 
@@ -607,10 +756,11 @@ function guardarPaciente() {
         matricula: document.getElementById('pacMatricula').value.trim(),
         fecha: document.getElementById('pacFecha').value,
         telefono: document.getElementById('pacTelefono').value,
-        correo: document.getElementById('pacCorreo').value,
+        correo,
         sangre: document.getElementById('pacSangre').value,
         direccion: document.getElementById('pacDireccion').value
     };
+    const usuarioActual = localStorage.getItem('loggedInUser') || '-';
 
     if (pacienteEnEdicionId) {
         const existente = dataManager.pacientes.find(p => p.id === pacienteEnEdicionId);
@@ -618,10 +768,18 @@ function guardarPaciente() {
             mostrarNotificacion('Error', 'No se encontró el paciente a editar', 'error');
             return;
         }
-        Object.assign(existente, paciente, { updatedAt: new Date().toISOString() });
+        Object.assign(existente, paciente, {
+            updatedAt: new Date().toISOString(),
+            accion: 'Editado',
+            accionPor: usuarioActual,
+            accionAt: new Date().toISOString()
+        });
         dataManager.saveData('pacientes', dataManager.pacientes);
         mostrarNotificacion('¡Éxito!', 'Paciente actualizado correctamente', 'success');
     } else {
+        paciente.accion = 'Creado';
+        paciente.accionPor = usuarioActual;
+        paciente.accionAt = new Date().toISOString();
         dataManager.addPaciente(paciente);
         mostrarNotificacion('¡Éxito!', 'Paciente registrado correctamente', 'success');
     }
@@ -648,6 +806,7 @@ function guardarMedico() {
         correo: document.getElementById('medCorreo').value,
         estado: 'activo'
     };
+    const usuarioActual = localStorage.getItem('loggedInUser') || '-';
 
     if (medicoEnEdicionId) {
         const existente = dataManager.medicos.find(m => m.id === medicoEnEdicionId);
@@ -655,10 +814,18 @@ function guardarMedico() {
             mostrarNotificacion('Error', 'No se encontró el médico a editar', 'error');
             return;
         }
-        Object.assign(existente, medico, { updatedAt: new Date().toISOString() });
+        Object.assign(existente, medico, {
+            updatedAt: new Date().toISOString(),
+            accion: 'Editado',
+            accionPor: usuarioActual,
+            accionAt: new Date().toISOString()
+        });
         dataManager.saveData('medicos', dataManager.medicos);
         mostrarNotificacion('¡Éxito!', 'Médico actualizado correctamente', 'success');
     } else {
+        medico.accion = 'Creado';
+        medico.accionPor = usuarioActual;
+        medico.accionAt = new Date().toISOString();
         dataManager.addMedico(medico);
         mostrarNotificacion('¡Éxito!', 'Médico registrado correctamente', 'success');
     }
@@ -668,12 +835,14 @@ function guardarMedico() {
     actualizarKPIs();
 }
 
-function guardarCita() {
+async function guardarCita() {
     const paciente = document.getElementById('citaPaciente').value;
     const medico = document.getElementById('citaMedico').value;
     const fecha = document.getElementById('citaFecha').value;
     const hora = document.getElementById('citaHora').value;
-    const especialidad = document.getElementById('citaEspecialidad').value;
+    const medicoSeleccionado = dataManager.medicos.find(m => String(m.id) === String(medico));
+    const especialidad = (medicoSeleccionado?.especialidad || '').trim();
+    const pacienteSeleccionado = dataManager.pacientes.find(p => String(p.id) === String(paciente));
 
     if (!paciente || Number.isNaN(Number(paciente))) {
         mostrarNotificacion('Error', 'Selecciona un paciente', 'error');
@@ -691,8 +860,12 @@ function guardarCita() {
         mostrarNotificacion('Error', 'Selecciona la hora de la cita', 'error');
         return;
     }
-    if (!especialidad || especialidad === 'Seleccionar especialidad') {
-        mostrarNotificacion('Error', 'Selecciona la especialidad de la cita', 'error');
+    if (!especialidad) {
+        mostrarNotificacion('Error', 'El medico seleccionado no tiene especialidad configurada', 'error');
+        return;
+    }
+    if (!pacienteSeleccionado || !correoValido(pacienteSeleccionado.correo || pacienteSeleccionado.email || '')) {
+        mostrarNotificacion('Error', 'El paciente debe tener un correo valido registrado para recibir la confirmacion', 'error');
         return;
     }
     if (!validarFechaHoraNoPasada(fecha, hora)) {
@@ -723,6 +896,9 @@ function guardarCita() {
         cita.especialidad = especialidad;
         cita.notas = notas;
         cita.updatedAt = new Date().toISOString();
+        cita.accion = modoEdicionCita === 'reprogramar' ? 'Reprogramada' : 'Editada';
+        cita.accionPor = localStorage.getItem('loggedInUser') || '-';
+        cita.accionAt = new Date().toISOString();
 
         dataManager.saveData('citas', dataManager.citas);
         mostrarNotificacion('¡Exito!', modoEdicionCita === 'reprogramar' ? 'Cita reprogramada correctamente' : 'Cita actualizada correctamente', 'success');
@@ -734,11 +910,25 @@ function guardarCita() {
             hora,
             especialidad,
             notas,
-            estado: ''
+            estado: '',
+            accion: 'Creada',
+            accionPor: localStorage.getItem('loggedInUser') || '-',
+            accionAt: new Date().toISOString()
         };
 
         dataManager.addCita(cita);
         mostrarNotificacion('¡Exito!', 'Cita agendada correctamente', 'success');
+
+        try {
+            const correoResult = await enviarCorreoConfirmacionCita(cita);
+            if (correoResult.ok) {
+                mostrarNotificacion('¡Éxito!', 'Cita agendada y correo enviado correctamente', 'success');
+            } else if (correoResult.message) {
+                mostrarNotificacion('Aviso', correoResult.message, 'info');
+            }
+        } catch (error) {
+            mostrarNotificacion('Aviso', error.message || 'La cita se guardó, pero no se pudo enviar el correo', 'info');
+        }
     }
     cerrarModalCita();
     actualizarTablaCitas();
@@ -785,6 +975,15 @@ function actualizarKPIs() {
     
     const kpiCitas = document.getElementById('kpi-citas');
     if (kpiCitas) kpiCitas.textContent = dataManager.citas.length;
+
+    const kpiCitasActivas = document.getElementById('kpi-citas-activas');
+    if (kpiCitasActivas) {
+        const citasActivas = dataManager.citas.filter(cita => {
+            const estado = (cita.estado || '').toLowerCase();
+            return estado !== 'completada' && estado !== 'cancelada';
+        }).length;
+        kpiCitasActivas.textContent = citasActivas;
+    }
     
     // Actualizar estadísticas
     const statPacientes = document.getElementById('stat-pacientes');
@@ -808,17 +1007,26 @@ function actualizarTablaPacientes() {
     });
     
     if (pacientesFiltrados.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No hay pacientes registrados. ¡Agrega uno!</td></tr>';
+        tabla.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No hay pacientes registrados. ¡Agrega uno!</td></tr>';
         return;
     }
 
-    tabla.innerHTML = pacientesFiltrados.map(p => `
+    tabla.innerHTML = pacientesFiltrados.map(p => {
+        const accionTexto = p.accion || 'Creado';
+        const accionPor = p.accionPor || '-';
+        const accionAt = p.accionAt ? new Date(p.accionAt).toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+        return `
         <tr class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4">${p.nombre} ${p.apellido || ''}</td>
             <td class="px-6 py-4">${p.cedula}</td>
             <td class="px-6 py-4">${p.matricula || '-'}</td>
             <td class="px-6 py-4">${p.telefono || '-'}</td>
             <td class="px-6 py-4">${p.correo || '-'}</td>
+            <td class="px-6 py-4">
+                <span class="block font-semibold text-gray-700 text-xs">${accionTexto}</span>
+                <span class="block text-indigo-600 text-xs font-medium">${accionPor}</span>
+                <span class="block text-gray-400 text-xs">${accionAt}</span>
+            </td>
             <td class="px-6 py-4">
                 <button onclick="editarPaciente(${p.id})" class="text-indigo-600 hover:text-indigo-800 transition-colors mr-2" title="Editar paciente">
                     <span class="material-symbols-outlined">edit</span>
@@ -828,7 +1036,8 @@ function actualizarTablaPacientes() {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function actualizarGridMedicos() {
@@ -855,7 +1064,11 @@ function actualizarGridMedicos() {
         return;
     }
 
-    grid.innerHTML = medicosFiltrados.map(m => `
+    grid.innerHTML = medicosFiltrados.map(m => {
+        const accionTexto = m.accion || 'Creado';
+        const accionPor = m.accionPor || '-';
+        const accionAt = m.accionAt ? new Date(m.accionAt).toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+        return `
         <div class="bg-white rounded-2xl card-shadow p-6 hover:shadow-xl transition-all">
             <div class="flex items-center justify-between mb-4">
                 <div class="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full flex items-center justify-center text-white font-black shadow-lg">
@@ -876,9 +1089,16 @@ function actualizarGridMedicos() {
                 <p class="font-medium"><strong class="text-gray-800">Teléfono:</strong> ${m.telefono || '-'}</p>
                 <p class="font-medium"><strong class="text-gray-800">Correo:</strong> ${m.correo || '-'}</p>
                 <p class="font-medium"><strong class="text-gray-800">Estado:</strong> <span class="text-green-600 font-bold bg-green-100 px-2 py-1 rounded text-xs">${m.estado || 'Activo'}</span></p>
+                <div class="pt-2 border-t border-gray-100 mt-2">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Última acción</p>
+                    <p class="text-xs font-semibold text-gray-700">${accionTexto}</p>
+                    <p class="text-xs font-medium text-indigo-600">${accionPor}</p>
+                    <p class="text-xs text-gray-400">${accionAt}</p>
+                </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function obtenerUsuariosFiltrados() {
@@ -937,7 +1157,7 @@ function actualizarTablaUsuarios() {
     }
 
     tabla.innerHTML = usuariosPagina.map(u => {
-        const rolClase = u.rol === 'admin' ? 'bg-indigo-100 text-indigo-800' : u.rol === 'doctor' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+        const rolClase = u.rol === 'admin' ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800';
         const estadoClase = u.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
         const ultimo = u.ultimoAcceso ? new Date(u.ultimoAcceso).toLocaleString('es-DO') : 'Nunca';
 
@@ -1130,7 +1350,7 @@ function obtenerCitasFiltradas() {
         const fecha = c.fecha || '';
         const cumpleDesde = !fechaDesde || fecha >= fechaDesde;
         const cumpleHasta = !fechaHasta || fecha <= fechaHasta;
-        const cumpleActual = !!fecha && fecha >= hoy;
+        const cumpleActual = !!fecha && fecha >= hoy && estado !== 'completada';
         return cumpleTexto && cumpleEstado && cumpleDesde && cumpleHasta && cumpleActual;
     });
 
@@ -1180,6 +1400,9 @@ function actualizarTablaCitas() {
         const paciente = dataManager.pacientes.find(p => p.id == c.paciente);
         const medico = dataManager.medicos.find(m => m.id == c.medico);
         const totalPaciente = conteoPorPaciente[String(c.paciente)] || 0;
+        const accionTexto = c.accion || 'Creada';
+        const accionPor = c.accionPor || '-';
+        const accionAt = c.accionAt ? new Date(c.accionAt).toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
         
         return `
             <tr class="hover:bg-gray-50 transition-colors">
@@ -1193,6 +1416,11 @@ function actualizarTablaCitas() {
                         c.estado === 'cancelada' ? 'bg-red-100 text-red-800' :
                         'bg-gray-100 text-gray-800'
                     }">${c.estado || 'Sin estado'}</span>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="block font-semibold text-gray-700 text-xs">${accionTexto}</span>
+                    <span class="block text-indigo-600 text-xs font-medium">${accionPor}</span>
+                    <span class="block text-gray-400 text-xs">${accionAt}</span>
                 </td>
                 <td class="px-6 py-4">
                     <button onclick="editarCita(${c.id})" class="text-indigo-600 hover:text-indigo-800 transition-colors mr-2" title="Editar cita">
@@ -1224,10 +1452,11 @@ function exportarCitasFiltradasCSV() {
         return;
     }
 
-    const headers = ['Paciente', 'Medico', 'Especialidad', 'Fecha', 'Hora', 'Estado', 'Notas'];
+    const headers = ['Paciente', 'Medico', 'Especialidad', 'Fecha', 'Hora', 'Estado', 'Notas', 'Accion', 'Realizado Por', 'Fecha Accion'];
     const rows = citasFiltradas.map(c => {
         const paciente = dataManager.pacientes.find(p => p.id == c.paciente);
         const medico = dataManager.medicos.find(m => m.id == c.medico);
+        const accionAt = c.accionAt ? new Date(c.accionAt).toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
         return [
             paciente ? `${paciente.nombre} ${paciente.apellido || ''}` : '-',
             medico ? medico.nombre : '-',
@@ -1235,7 +1464,10 @@ function exportarCitasFiltradasCSV() {
             c.fecha || '-',
             formatearHora12h(c.hora) || '-',
             c.estado || '-',
-            (c.notas || '-').replace(/\n/g, ' ')
+            (c.notas || '-').replace(/\n/g, ' '),
+            c.accion || 'Creada',
+            c.accionPor || '-',
+            accionAt
         ];
     });
 
@@ -1285,7 +1517,6 @@ function cargarCitaEnModal(id, modo = 'editar') {
         actualizarDisplayHora();
     }
     
-    document.getElementById('citaEspecialidad').value = cita.especialidad || '';
     document.getElementById('citaNotas').value = cita.notas || '';
 
     const titulo = document.getElementById('modalCitaTitulo');
@@ -1296,7 +1527,6 @@ function cargarCitaEnModal(id, modo = 'editar') {
     const bloquearDatosBase = modo === 'reprogramar';
     document.getElementById('citaPaciente').disabled = bloquearDatosBase;
     document.getElementById('citaMedico').disabled = bloquearDatosBase;
-    document.getElementById('citaEspecialidad').disabled = bloquearDatosBase;
 }
 
 function editarCita(id) {
@@ -1441,7 +1671,8 @@ function actualizarCitasPasadas() {
     const citasPasadas = dataManager.citas
         .filter(cita => {
             const fecha = cita.fecha || '';
-            if (!(fecha < hoy)) return false;
+            const esPasada = fecha < hoy || (cita.estado || '').toLowerCase() === 'completada';
+            if (!esPasada) return false;
 
             const paciente = dataManager.pacientes.find(p => p.id == cita.paciente);
             const medico = dataManager.medicos.find(m => m.id == cita.medico);
@@ -1521,6 +1752,70 @@ function irPaginaCitasPasadas(pagina) {
     actualizarCitasPasadas();
 }
 
+function exportarCitasPasadasCSV() {
+    const hoy = fechaActualISO();
+    const textoFiltro = (document.getElementById('filtroCitasPasadasTexto')?.value || '').toLowerCase().trim();
+    const fechaDesde = document.getElementById('filtroCitasPasadasDesde')?.value || '';
+    const fechaHasta = document.getElementById('filtroCitasPasadasHasta')?.value || '';
+
+    const citasPasadas = dataManager.citas
+        .filter(cita => {
+            const fecha = cita.fecha || '';
+            const esPasada = fecha < hoy || (cita.estado || '').toLowerCase() === 'completada';
+            if (!esPasada) return false;
+            const paciente = dataManager.pacientes.find(p => p.id == cita.paciente);
+            const medico = dataManager.medicos.find(m => m.id == cita.medico);
+            const textoPaciente = paciente ? `${paciente.nombre} ${paciente.apellido || ''}`.toLowerCase() : '';
+            const textoMedico = medico ? (medico.nombre || '').toLowerCase() : '';
+            const textoEspecialidad = (cita.especialidad || '').toLowerCase();
+            const cumpleTexto = !textoFiltro || textoPaciente.includes(textoFiltro) || textoMedico.includes(textoFiltro) || textoEspecialidad.includes(textoFiltro);
+            const cumpleDesde = !fechaDesde || fecha >= fechaDesde;
+            const cumpleHasta = !fechaHasta || fecha <= fechaHasta;
+            return cumpleTexto && cumpleDesde && cumpleHasta;
+        })
+        .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+
+    if (citasPasadas.length === 0) {
+        mostrarNotificacion('Info', 'No hay citas pasadas para exportar con los filtros actuales', 'info');
+        return;
+    }
+
+    const headers = ['Paciente', 'Medico', 'Especialidad', 'Fecha', 'Hora', 'Estado', 'Notas', 'Accion', 'Realizado Por', 'Fecha Accion'];
+    const rows = citasPasadas.map(c => {
+        const paciente = dataManager.pacientes.find(p => p.id == c.paciente);
+        const medico = dataManager.medicos.find(m => m.id == c.medico);
+        const accionAt = c.accionAt ? new Date(c.accionAt).toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+        return [
+            paciente ? `${paciente.nombre} ${paciente.apellido || ''}` : '-',
+            medico ? medico.nombre : '-',
+            c.especialidad || '-',
+            c.fecha || '-',
+            formatearHora12h(c.hora) || '-',
+            c.estado || '-',
+            (c.notas || '-').replace(/\n/g, ' '),
+            c.accion || 'Creada',
+            c.accionPor || '-',
+            accionAt
+        ];
+    });
+
+    const csvContent = [headers, ...rows]
+        .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `citas_pasadas_${fechaActualISO()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    mostrarNotificacion('¡Exito!', 'CSV exportado correctamente', 'success');
+}
+
 function limpiarFiltrosCitasPasadas() {
     const texto = document.getElementById('filtroCitasPasadasTexto');
     const desde = document.getElementById('filtroCitasPasadasDesde');
@@ -1537,6 +1832,9 @@ function completarCita(id) {
     if (!cita) return;
 
     cita.estado = 'completada';
+    cita.accion = 'Completada';
+    cita.accionPor = localStorage.getItem('loggedInUser') || '-';
+    cita.accionAt = new Date().toISOString();
     dataManager.saveData('citas', dataManager.citas);
     mostrarNotificacion('¡Éxito!', 'Cita marcada como completada', 'success');
 
@@ -1551,6 +1849,9 @@ function cancelarCita(id) {
     if (!cita) return;
 
     cita.estado = 'cancelada';
+    cita.accion = 'Cancelada';
+    cita.accionPor = localStorage.getItem('loggedInUser') || '-';
+    cita.accionAt = new Date().toISOString();
     dataManager.saveData('citas', dataManager.citas);
     mostrarNotificacion('Info', 'Cita marcada como cancelada', 'info');
 
@@ -1566,8 +1867,9 @@ function cancelarCita(id) {
 
 function eliminarPaciente(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este paciente?')) {
+        const usuarioActual = localStorage.getItem('loggedInUser') || '-';
         dataManager.deletePaciente(id);
-        mostrarNotificacion('¡Éxito!', 'Paciente eliminado correctamente', 'success');
+        mostrarNotificacion('¡Éxito!', `Paciente eliminado por ${usuarioActual}`, 'success');
         actualizarTablaPacientes();
         actualizarKPIs();
     }
@@ -1597,8 +1899,9 @@ function editarPaciente(id) {
 
 function eliminarMedico(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este médico?')) {
+        const usuarioActual = localStorage.getItem('loggedInUser') || '-';
         dataManager.deleteMedico(id);
-        mostrarNotificacion('¡Éxito!', 'Médico eliminado correctamente', 'success');
+        mostrarNotificacion('¡Éxito!', `Médico eliminado por ${usuarioActual}`, 'success');
         actualizarGridMedicos();
         actualizarKPIs();
     }
@@ -1638,6 +1941,112 @@ function eliminarCita(id) {
 // AUTENTICACIÓN
 // ============================================
 
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (!input || !icon) return;
+
+    const esPassword = input.type === 'password';
+    input.type = esPassword ? 'text' : 'password';
+    icon.textContent = esPassword ? 'visibility_off' : 'visibility';
+}
+
+function abrirModalRecuperarContrasena() {
+    const modal = document.getElementById('modalRecuperarContrasena');
+    const error = document.getElementById('recuperarPasswordError');
+    if (modal) modal.classList.remove('hidden');
+    if (error) {
+        error.classList.add('hidden');
+        error.textContent = '';
+    }
+}
+
+function cerrarModalRecuperarContrasena() {
+    const modal = document.getElementById('modalRecuperarContrasena');
+    if (modal) modal.classList.add('hidden');
+
+    const username = document.getElementById('recuperarUsername');
+    const actual = document.getElementById('recuperarPasswordActual');
+    const nueva = document.getElementById('recuperarPasswordNueva');
+    const confirmar = document.getElementById('recuperarPasswordConfirmar');
+    const error = document.getElementById('recuperarPasswordError');
+    const currentIcon = document.getElementById('toggleCurrentPasswordIcon');
+    const newIcon = document.getElementById('toggleResetPasswordIcon');
+
+    if (username) username.value = '';
+    if (actual) actual.value = '';
+    if (nueva) nueva.value = '';
+    if (confirmar) confirmar.value = '';
+    if (actual) actual.type = 'password';
+    if (nueva) nueva.type = 'password';
+    if (currentIcon) currentIcon.textContent = 'visibility';
+    if (newIcon) newIcon.textContent = 'visibility';
+    if (error) {
+        error.classList.add('hidden');
+        error.textContent = '';
+    }
+}
+
+function restablecerContrasena() {
+    const username = document.getElementById('recuperarUsername')?.value.trim();
+    const actual = document.getElementById('recuperarPasswordActual')?.value || '';
+    const nueva = document.getElementById('recuperarPasswordNueva')?.value || '';
+    const confirmar = document.getElementById('recuperarPasswordConfirmar')?.value || '';
+    const error = document.getElementById('recuperarPasswordError');
+
+    if (error) {
+        error.classList.add('hidden');
+        error.textContent = '';
+    }
+
+    if (!username || !actual || !nueva || !confirmar) {
+        if (error) {
+            error.textContent = 'Completa todos los campos para cambiar la contraseña';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+
+    if (nueva.length < 4) {
+        if (error) {
+            error.textContent = 'La nueva contraseña debe tener al menos 4 caracteres';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+
+    if (nueva !== confirmar) {
+        if (error) {
+            error.textContent = 'Las contraseñas no coinciden';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+
+    const usuario = dataManager.usuarios.find(u => u.username === username);
+    if (!usuario) {
+        if (error) {
+            error.textContent = 'No se encontró un usuario con ese nombre';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+
+    if (usuario.password !== actual) {
+        if (error) {
+            error.textContent = 'La contraseña actual no es correcta';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+
+    usuario.password = nueva;
+    usuario.updatedAt = new Date().toISOString();
+    dataManager.saveData('usuarios', dataManager.usuarios);
+    cerrarModalRecuperarContrasena();
+    mostrarNotificacion('¡Éxito!', 'Contraseña actualizada correctamente', 'success');
+}
+
 function verificarSesion() {
     const usuario = localStorage.getItem('loggedInUser');
     if (usuario) {
@@ -1672,6 +2081,7 @@ function iniciarSesion(username, password) {
     }
 
     localStorage.setItem('loggedInUser', username);
+    localStorage.setItem('loggedInRol', usuario.rol);
     usuario.ultimoAcceso = new Date().toISOString();
     dataManager.saveData('usuarios', dataManager.usuarios);
         document.getElementById('login-error').classList.add('hidden');
@@ -1681,6 +2091,7 @@ function iniciarSesion(username, password) {
 
 function cerrarSesion() {
     localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('loggedInRol');
     verificarSesion();
 }
 
@@ -1688,8 +2099,16 @@ function cerrarSesion() {
 // INICIALIZACIÓN
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     verificarSesion();
+
+    await dataManager.sincronizarConBaseDatos();
+    actualizarTablaPacientes();
+    actualizarGridMedicos();
+    actualizarTablaCitas();
+    actualizarCitasPasadas();
+    actualizarKPIs();
+    initCharts();
 
     const fechaCita = document.getElementById('citaFecha');
     const periodoCita = document.getElementById('citaPeriodo');
@@ -1823,4 +2242,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const password = document.getElementById('password').value;
         iniciarSesion(username, password);
     });
+
+    const recuperarPasswordConfirmar = document.getElementById('recuperarPasswordConfirmar');
+    if (recuperarPasswordConfirmar) {
+        recuperarPasswordConfirmar.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                restablecerContrasena();
+            }
+        });
+    }
 });
