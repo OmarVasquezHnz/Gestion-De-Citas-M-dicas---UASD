@@ -273,6 +273,61 @@ function fechaActualISO() {
     return fechaLocalISO(new Date());
 }
 
+function inicializarCalendariosModernos() {
+    if (typeof flatpickr === 'undefined') return;
+
+    const placeholdersFecha = {
+        filtroFechaDia: 'Seleccionar dia',
+        chartFechaDesde: 'Desde',
+        chartFechaHasta: 'Hasta',
+        filtroFechaDesdeCitas: 'Desde',
+        filtroFechaHastaCitas: 'Hasta',
+        filtroCitasPasadasDesde: 'Desde',
+        filtroCitasPasadasHasta: 'Hasta',
+        citaFecha: 'Seleccionar fecha',
+        pacFecha: 'Fecha de nacimiento'
+    };
+
+    if (window.flatpickr && window.flatpickr.localize && window.flatpickr.l10ns && window.flatpickr.l10ns.es) {
+        window.flatpickr.localize(window.flatpickr.l10ns.es);
+    }
+
+    const inputsFecha = document.querySelectorAll('input[type="date"]');
+    inputsFecha.forEach(input => {
+        if (!input || input.dataset.fpInit === 'true') return;
+
+        const valorActual = input.value || '';
+        input.type = 'text';
+
+        const config = {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd/m/Y',
+            allowInput: false,
+            disableMobile: true,
+            locale: 'es',
+            onReady: function(selectedDates, dateStr, instance) {
+                const placeholder = placeholdersFecha[input.id] || 'Seleccionar fecha';
+                if (instance.altInput) {
+                    instance.altInput.placeholder = placeholder;
+                    instance.altInput.setAttribute('aria-label', placeholder);
+                }
+            }
+        };
+
+        if (input.id === 'citaFecha') {
+            config.minDate = fechaActualISO();
+        }
+
+        const instancia = flatpickr(input, config);
+        if (valorActual) {
+            instancia.setDate(valorActual, true, 'Y-m-d');
+        }
+
+        input.dataset.fpInit = 'true';
+    });
+}
+
 function horaActualHHMM() {
     return new Date().toTimeString().slice(0, 5);
 }
@@ -2187,6 +2242,8 @@ function cerrarSesion() {
 document.addEventListener('DOMContentLoaded', async function() {
     verificarSesion();
 
+    inicializarCalendariosModernos();
+
     await dataManager.sincronizarConBaseDatos();
     actualizarTablaPacientes();
     actualizarGridMedicos();
@@ -2203,7 +2260,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     if (fechaCita) {
-        fechaCita.min = fechaActualISO();
+        if (fechaCita._flatpickr) {
+            fechaCita._flatpickr.set('minDate', fechaActualISO());
+        } else {
+            fechaCita.min = fechaActualISO();
+        }
     }
     
     // Filtro de fecha para citas del día
@@ -2211,7 +2272,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (filtroFecha) {
         // Establecer fecha por defecto (hoy)
         const hoy = fechaActualISO();
-        filtroFecha.value = hoy;
+        if (filtroFecha._flatpickr) {
+            filtroFecha._flatpickr.setDate(hoy, true, 'Y-m-d');
+        } else {
+            filtroFecha.value = hoy;
+        }
         
         filtroFecha.addEventListener('change', function() {
             actualizarCitasDia(this.value);
