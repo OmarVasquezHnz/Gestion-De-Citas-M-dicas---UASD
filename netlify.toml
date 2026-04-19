@@ -4,6 +4,7 @@
 
 [build.environment]
   RESEND_API_KEY = "re_dqwtQD8D_QFofUBjPXrzr5Q4KcXy3RjtD"
+  MAIL_FROM = "Gestión de Citas UASD <gestiondecitasuasd@gmail.com>"
 
 [[redirects]]
   from = "/api/notificaciones/cita"
