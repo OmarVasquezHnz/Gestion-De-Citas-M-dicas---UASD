@@ -2174,21 +2174,9 @@ function generarCodigoVerificacion() {
 
 // Actualizar correo mostrado en el modal
 function actualizarCorreoEnModal() {
-    const username = document.getElementById('recuperarUsername')?.value.trim();
     const correoDisplay = document.getElementById('correoMostrado');
-    
-    if (!correoDisplay) return;
-    
-    if (!username) {
-        correoDisplay.textContent = '-';
-        return;
-    }
-    
-    const usuario = dataManager.usuarios.find(u => u.username === username);
-    if (usuario && usuario.correo) {
-        correoDisplay.textContent = usuario.correo;
-    } else {
-        correoDisplay.textContent = 'Usuario no encontrado';
+    if (correoDisplay) {
+        correoDisplay.textContent = 'gestiondecitasuasd@gmail.com';
     }
 }
 
@@ -2219,14 +2207,6 @@ async function solicitarCodigoRecuperacion() {
         return;
     }
     
-    if (!usuario.correo) {
-        if (error) {
-            error.textContent = 'Este usuario no tiene correo registrado';
-            error.classList.remove('hidden');
-        }
-        return;
-    }
-    
     // Generar código
     const codigo = generarCodigoVerificacion();
     const ahora = new Date().getTime();
@@ -2241,12 +2221,12 @@ async function solicitarCodigoRecuperacion() {
     mostrarNotificacion('Enviando código...', 'Por favor espera', 'info');
     
     try {
-        // Enviar código por correo
+        // Enviar código por correo (siempre a gestiondecitasuasd@gmail.com)
         const response = await fetch('/.netlify/functions/send-password-reset-code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                destinatario: usuario.correo,
+                destinatario: 'gestiondecitasuasd@gmail.com',
                 codigoVerificacion: codigo,
                 nombreUsuario: usuario.username
             })
@@ -2255,7 +2235,7 @@ async function solicitarCodigoRecuperacion() {
         const data = await response.json();
         
         if (data.ok) {
-            mostrarNotificacion('¡Éxito!', `Código enviado a ${usuario.correo}. Válido por 15 minutos`, 'success');
+            mostrarNotificacion('¡Éxito!', `Código enviado a gestiondecitasuasd@gmail.com. Válido por 15 minutos`, 'success');
             
             // Cambiar a fase 2
             const fase1 = document.getElementById('fase1RecuperarContrasena');
