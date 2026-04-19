@@ -367,6 +367,15 @@ function correoValido(correo) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(correo || '').trim());
 }
 
+function esCitaActiva(cita) {
+    if (!cita) return false;
+    const estado = String(cita.estado || 'pendiente').toLowerCase();
+    const fecha = String(cita.fecha || '');
+    const hoy = fechaActualISO();
+
+    return !!fecha && fecha >= hoy && estado !== 'completada' && estado !== 'cancelada';
+}
+
 async function enviarCorreoConfirmacionCita(cita) {
     const paciente = dataManager.pacientes.find(p => String(p.id) === String(cita.paciente));
     const medico = dataManager.medicos.find(m => String(m.id) === String(cita.medico));
@@ -1121,10 +1130,7 @@ function actualizarKPIs() {
 
     const kpiCitasActivas = document.getElementById('kpi-citas-activas');
     if (kpiCitasActivas) {
-        const citasActivas = dataManager.citas.filter(cita => {
-            const estado = (cita.estado || '').toLowerCase();
-            return estado !== 'completada' && estado !== 'cancelada';
-        }).length;
+        const citasActivas = dataManager.citas.filter(esCitaActiva).length;
         kpiCitasActivas.textContent = citasActivas;
     }
     
@@ -1473,8 +1479,6 @@ function obtenerCitasFiltradas() {
     const filtroEstado = (document.getElementById('filtroEstadoCitas')?.value || '').toLowerCase().trim();
     const fechaDesde = document.getElementById('filtroFechaDesdeCitas')?.value || '';
     const fechaHasta = document.getElementById('filtroFechaHastaCitas')?.value || '';
-    const hoy = fechaActualISO();
-
     const conteoPorPaciente = {};
     dataManager.citas.forEach(cita => {
         const key = String(cita.paciente);
@@ -1490,7 +1494,7 @@ function obtenerCitasFiltradas() {
         const fecha = c.fecha || '';
         const cumpleDesde = !fechaDesde || fecha >= fechaDesde;
         const cumpleHasta = !fechaHasta || fecha <= fechaHasta;
-        const cumpleActual = !!fecha && fecha >= hoy && estado !== 'completada';
+        const cumpleActual = esCitaActiva(c);
         return cumpleTexto && cumpleEstado && cumpleDesde && cumpleHasta && cumpleActual;
     });
 
@@ -2093,12 +2097,41 @@ function togglePasswordVisibility(inputId, iconId) {
 
 function abrirModalRecuperarContrasena() {
     const modal = document.getElementById('modalRecuperarContrasena');
-    const error = document.getElementById('recuperarPasswordError');
+    const error1 = document.getElementById('recuperarPasswordError');
+    const error2 = document.getElementById('recuperarPasswordError2');
+    const username = document.getElementById('recuperarUsername');
+    const codigo = document.getElementById('codigoVerificacion');
+    const nueva = document.getElementById('recuperarPasswordNueva');
+    const confirmar = document.getElementById('recuperarPasswordConfirmar');
+    const fase1 = document.getElementById('fase1RecuperarContrasena');
+    const fase2 = document.getElementById('fase2RecuperarContrasena');
+    
     if (modal) modal.classList.remove('hidden');
-    if (error) {
-        error.classList.add('hidden');
-        error.textContent = '';
+    if (error1) {
+        error1.classList.add('hidden');
+        error1.textContent = '';
     }
+    if (error2) {
+        error2.classList.add('hidden');
+        error2.textContent = '';
+    }
+    if (username) username.value = '';
+    if (codigo) codigo.value = '';
+    if (nueva) nueva.value = '';
+    if (confirmar) confirmar.value = '';
+    if (fase1) fase1.classList.remove('hidden');
+    if (fase2) fase2.classList.add('hidden');
+    
+    // Limpiar datos temporales
+    sessionStorage.removeItem('passwordResetUsername');
+    sessionStorage.removeItem('passwordResetCode');
+    sessionStorage.removeItem('passwordResetExpiry');
+    
+    // Actualizar correo mostrado en tiempo real
+    if (username) {
+        username.addEventListener('input', actualizarCorreoEnModal);
+    }
+    actualizarCorreoEnModal();
 }
 
 function cerrarModalRecuperarContrasena() {
@@ -2106,63 +2139,77 @@ function cerrarModalRecuperarContrasena() {
     if (modal) modal.classList.add('hidden');
 
     const username = document.getElementById('recuperarUsername');
-    const actual = document.getElementById('recuperarPasswordActual');
+    const codigo = document.getElementById('codigoVerificacion');
     const nueva = document.getElementById('recuperarPasswordNueva');
     const confirmar = document.getElementById('recuperarPasswordConfirmar');
-    const error = document.getElementById('recuperarPasswordError');
-    const currentIcon = document.getElementById('toggleCurrentPasswordIcon');
+    const error1 = document.getElementById('recuperarPasswordError');
+    const error2 = document.getElementById('recuperarPasswordError2');
     const newIcon = document.getElementById('toggleResetPasswordIcon');
 
     if (username) username.value = '';
-    if (actual) actual.value = '';
+    if (codigo) codigo.value = '';
     if (nueva) nueva.value = '';
-    if (confirmar) confirmar.value = '';
-    if (actual) actual.type = 'password';
     if (nueva) nueva.type = 'password';
-    if (currentIcon) currentIcon.textContent = 'visibility';
+    if (confirmar) confirmar.value = '';
     if (newIcon) newIcon.textContent = 'visibility';
-    if (error) {
-        error.classList.add('hidden');
-        error.textContent = '';
+    if (error1) {
+        error1.classList.add('hidden');
+        error1.textContent = '';
+    }
+    if (error2) {
+        error2.classList.add('hidden');
+        error2.textContent = '';
+    }
+    
+    // Limpiar datos temporales
+    sessionStorage.removeItem('passwordResetUsername');
+    sessionStorage.removeItem('passwordResetCode');
+    sessionStorage.removeItem('passwordResetExpiry');
+}
+
+// Generar código aleatorio de 6 dígitos
+function generarCodigoVerificacion() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Actualizar correo mostrado en el modal
+function actualizarCorreoEnModal() {
+    const username = document.getElementById('recuperarUsername')?.value.trim();
+    const correoDisplay = document.getElementById('correoMostrado');
+    
+    if (!correoDisplay) return;
+    
+    if (!username) {
+        correoDisplay.textContent = '-';
+        return;
+    }
+    
+    const usuario = dataManager.usuarios.find(u => u.username === username);
+    if (usuario && usuario.correo) {
+        correoDisplay.textContent = usuario.correo;
+    } else {
+        correoDisplay.textContent = 'Usuario no encontrado';
     }
 }
 
-function restablecerContrasena() {
+// Solicitar código de recuperación
+async function solicitarCodigoRecuperacion() {
     const username = document.getElementById('recuperarUsername')?.value.trim();
-    const actual = document.getElementById('recuperarPasswordActual')?.value || '';
-    const nueva = document.getElementById('recuperarPasswordNueva')?.value || '';
-    const confirmar = document.getElementById('recuperarPasswordConfirmar')?.value || '';
     const error = document.getElementById('recuperarPasswordError');
-
+    
     if (error) {
         error.classList.add('hidden');
         error.textContent = '';
     }
-
-    if (!username || !actual || !nueva || !confirmar) {
+    
+    if (!username) {
         if (error) {
-            error.textContent = 'Completa todos los campos para cambiar la contraseña';
+            error.textContent = 'Ingresa tu nombre de usuario';
             error.classList.remove('hidden');
         }
         return;
     }
-
-    if (nueva.length < 4) {
-        if (error) {
-            error.textContent = 'La nueva contraseña debe tener al menos 4 caracteres';
-            error.classList.remove('hidden');
-        }
-        return;
-    }
-
-    if (nueva !== confirmar) {
-        if (error) {
-            error.textContent = 'Las contraseñas no coinciden';
-            error.classList.remove('hidden');
-        }
-        return;
-    }
-
+    
     const usuario = dataManager.usuarios.find(u => u.username === username);
     if (!usuario) {
         if (error) {
@@ -2171,18 +2218,183 @@ function restablecerContrasena() {
         }
         return;
     }
-
-    if (usuario.password !== actual) {
+    
+    if (!usuario.correo) {
         if (error) {
-            error.textContent = 'La contraseña actual no es correcta';
+            error.textContent = 'Este usuario no tiene correo registrado';
             error.classList.remove('hidden');
         }
         return;
     }
+    
+    // Generar código
+    const codigo = generarCodigoVerificacion();
+    const ahora = new Date().getTime();
+    const expiracion = ahora + (15 * 60 * 1000); // 15 minutos
+    
+    // Guardar en sessionStorage
+    sessionStorage.setItem('passwordResetUsername', username);
+    sessionStorage.setItem('passwordResetCode', codigo);
+    sessionStorage.setItem('passwordResetExpiry', expiracion);
+    
+    // Mostrar notificación de envío
+    mostrarNotificacion('Enviando código...', 'Por favor espera', 'info');
+    
+    try {
+        // Enviar código por correo
+        const response = await fetch('/.netlify/functions/send-password-reset-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                destinatario: usuario.correo,
+                codigoVerificacion: codigo,
+                nombreUsuario: usuario.username
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+            mostrarNotificacion('¡Éxito!', `Código enviado a ${usuario.correo}. Válido por 15 minutos`, 'success');
+            
+            // Cambiar a fase 2
+            const fase1 = document.getElementById('fase1RecuperarContrasena');
+            const fase2 = document.getElementById('fase2RecuperarContrasena');
+            if (fase1) fase1.classList.add('hidden');
+            if (fase2) fase2.classList.remove('hidden');
+            
+            // Enfocar en el campo de código
+            setTimeout(() => {
+                document.getElementById('codigoVerificacion')?.focus();
+            }, 100);
+        } else {
+            mostrarNotificacion('Error', data.message || 'No se pudo enviar el código', 'error');
+            if (error) {
+                error.textContent = data.message || 'Error al enviar el código';
+                error.classList.remove('hidden');
+            }
+        }
+    } catch (err) {
+        console.error('Error enviando código:', err);
+        mostrarNotificacion('Error', 'No se pudo conectar con el servidor', 'error');
+        if (error) {
+            error.textContent = 'Error de conexión';
+            error.classList.remove('hidden');
+        }
+    }
+}
 
+// Volver a fase 1
+function volverAFase1() {
+    const fase1 = document.getElementById('fase1RecuperarContrasena');
+    const fase2 = document.getElementById('fase2RecuperarContrasena');
+    const error2 = document.getElementById('recuperarPasswordError2');
+    const codigo = document.getElementById('codigoVerificacion');
+    const nueva = document.getElementById('recuperarPasswordNueva');
+    const confirmar = document.getElementById('recuperarPasswordConfirmar');
+    
+    if (fase1) fase1.classList.remove('hidden');
+    if (fase2) fase2.classList.add('hidden');
+    if (error2) {
+        error2.classList.add('hidden');
+        error2.textContent = '';
+    }
+    if (codigo) codigo.value = '';
+    if (nueva) nueva.value = '';
+    if (confirmar) confirmar.value = '';
+    
+    document.getElementById('recuperarUsername')?.focus();
+}
+
+// Restablecer contraseña por código
+function restablecerContrasenaPorCodigo() {
+    const codigo = document.getElementById('codigoVerificacion')?.value.trim();
+    const nueva = document.getElementById('recuperarPasswordNueva')?.value || '';
+    const confirmar = document.getElementById('recuperarPasswordConfirmar')?.value || '';
+    const error = document.getElementById('recuperarPasswordError2');
+    
+    if (error) {
+        error.classList.add('hidden');
+        error.textContent = '';
+    }
+    
+    // Validar campos
+    if (!codigo || !nueva || !confirmar) {
+        if (error) {
+            error.textContent = 'Completa todos los campos';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    if (codigo.length !== 6 || isNaN(codigo)) {
+        if (error) {
+            error.textContent = 'El código debe ser 6 dígitos';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    if (nueva.length < 4) {
+        if (error) {
+            error.textContent = 'La contraseña debe tener al menos 4 caracteres';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    if (nueva !== confirmar) {
+        if (error) {
+            error.textContent = 'Las contraseñas no coinciden';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    // Verificar código
+    const username = sessionStorage.getItem('passwordResetUsername');
+    const codigoGuardado = sessionStorage.getItem('passwordResetCode');
+    const expiracion = parseInt(sessionStorage.getItem('passwordResetExpiry') || 0);
+    const ahora = new Date().getTime();
+    
+    if (!codigoGuardado || codigo !== codigoGuardado) {
+        if (error) {
+            error.textContent = 'Código de verificación incorrecto';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+    
+    if (ahora > expiracion) {
+        if (error) {
+            error.textContent = 'El código ha expirado. Solicita uno nuevo';
+            error.classList.remove('hidden');
+        }
+        sessionStorage.removeItem('passwordResetUsername');
+        sessionStorage.removeItem('passwordResetCode');
+        sessionStorage.removeItem('passwordResetExpiry');
+        return;
+    }
+    
+    // Cambiar contraseña
+    const usuario = dataManager.usuarios.find(u => u.username === username);
+    if (!usuario) {
+        if (error) {
+            error.textContent = 'Usuario no encontrado';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+    
     usuario.password = nueva;
     usuario.updatedAt = new Date().toISOString();
     dataManager.saveData('usuarios', dataManager.usuarios);
+    
+    // Limpiar datos temporales
+    sessionStorage.removeItem('passwordResetUsername');
+    sessionStorage.removeItem('passwordResetCode');
+    sessionStorage.removeItem('passwordResetExpiry');
+    
     cerrarModalRecuperarContrasena();
     mostrarNotificacion('¡Éxito!', 'Contraseña actualizada correctamente', 'success');
 }
@@ -2229,10 +2441,33 @@ function iniciarSesion(username, password) {
         return true;
 }
 
-function cerrarSesion() {
+function abrirModalConfirmarCerrarSesion() {
+    const modal = document.getElementById('modalConfirmarCerrarSesion');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function cerrarModalConfirmarCerrarSesion(event) {
+    if (event && event.target && event.target.id !== 'modalConfirmarCerrarSesion') {
+        return;
+    }
+
+    const modal = document.getElementById('modalConfirmarCerrarSesion');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function confirmarCerrarSesion() {
     localStorage.removeItem('loggedInUser');
     localStorage.removeItem('loggedInRol');
+    cerrarModalConfirmarCerrarSesion();
     verificarSesion();
+}
+
+function cerrarSesion() {
+    abrirModalConfirmarCerrarSesion();
 }
 
 // ============================================

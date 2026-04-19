@@ -321,24 +321,58 @@
                 <button onclick="cerrarModalRecuperarContrasena()" class="text-indigo-500 hover:text-indigo-700 transition-colors text-2xl">✕</button>
             </div>
             <div class="p-6 space-y-4">
-                <input type="text" id="recuperarUsername" placeholder="Usuario *" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
-                <div class="relative">
-                    <input type="password" id="recuperarPasswordActual" placeholder="Contraseña actual *" class="w-full px-4 py-3 pr-12 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
-                    <button type="button" onclick="togglePasswordVisibility('recuperarPasswordActual', 'toggleCurrentPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700" aria-label="Mostrar u ocultar contraseña actual">
-                        <span id="toggleCurrentPasswordIcon" class="material-symbols-outlined">visibility</span>
-                    </button>
+                <!-- FASE 1: Solicitar Código -->
+                <div id="fase1RecuperarContrasena" class="space-y-4">
+                    <p class="text-sm text-gray-600 mb-4">Te enviaremos un código de verificación a tu correo registrado.</p>
+                    <input type="text" id="recuperarUsername" placeholder="Nombre de usuario *" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                        <p class="text-xs text-gray-600 mb-1">Correo que recibirá el código:</p>
+                        <p id="correoMostrado" class="text-sm font-semibold text-indigo-700">-</p>
+                    </div>
+                    <div id="recuperarPasswordError" class="hidden text-sm text-red-600 font-medium"></div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="cerrarModalRecuperarContrasena()" class="flex-1 px-4 py-3 border-2 border-indigo-300 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors font-bold">Cancelar</button>
+                        <button type="button" onclick="solicitarCodigoRecuperacion()" class="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all font-bold">Enviar Código</button>
+                    </div>
                 </div>
-                <div class="relative">
-                    <input type="password" id="recuperarPasswordNueva" placeholder="Nueva contraseña *" class="w-full px-4 py-3 pr-12 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
-                    <button type="button" onclick="togglePasswordVisibility('recuperarPasswordNueva', 'toggleResetPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700" aria-label="Mostrar u ocultar contraseña nueva">
-                        <span id="toggleResetPasswordIcon" class="material-symbols-outlined">visibility</span>
-                    </button>
+
+                <!-- FASE 2: Verificar Código y Cambiar Contraseña -->
+                <div id="fase2RecuperarContrasena" class="hidden space-y-4">
+                    <p class="text-sm text-gray-600 mb-4">Ingresa el código que enviamos a tu correo.</p>
+                    <input type="text" id="codigoVerificacion" placeholder="Código de verificación (6 dígitos) *" maxlength="6" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400 text-center text-2xl tracking-widest">
+                    <div class="relative">
+                        <input type="password" id="recuperarPasswordNueva" placeholder="Nueva contraseña *" class="w-full px-4 py-3 pr-12 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
+                        <button type="button" onclick="togglePasswordVisibility('recuperarPasswordNueva', 'toggleResetPasswordIcon')" class="absolute inset-y-0 right-3 flex items-center text-indigo-500 hover:text-indigo-700" aria-label="Mostrar u ocultar contraseña nueva">
+                            <span id="toggleResetPasswordIcon" class="material-symbols-outlined">visibility</span>
+                        </button>
+                    </div>
+                    <input type="password" id="recuperarPasswordConfirmar" placeholder="Confirmar contraseña *" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
+                    <div id="recuperarPasswordError2" class="hidden text-sm text-red-600 font-medium"></div>
+                    <button type="button" onclick="volverAFase1()" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">← Volver</button>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="cerrarModalRecuperarContrasena()" class="flex-1 px-4 py-3 border-2 border-indigo-300 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors font-bold">Cancelar</button>
+                        <button type="button" onclick="restablecerContrasenaPorCodigo()" class="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all font-bold">Guardar</button>
+                    </div>
                 </div>
-                <input type="password" id="recuperarPasswordConfirmar" placeholder="Confirmar contraseña *" class="w-full px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-colors font-medium placeholder-gray-400">
-                <div id="recuperarPasswordError" class="hidden text-sm text-red-600 font-medium"></div>
-                <div class="flex gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalRecuperarContrasena()" class="flex-1 px-4 py-3 border-2 border-indigo-300 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors font-bold">Cancelar</button>
-                    <button type="button" onclick="restablecerContrasena()" class="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Confirmar Cierre de Sesión -->
+    <div id="modalConfirmarCerrarSesion" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 fade-in" onclick="cerrarModalConfirmarCerrarSesion(event)">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 fade-in border-t-4 border-amber-500 overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-amber-600">warning</span>
+                    <h3 class="text-lg font-black text-gray-800">Confirmar cierre</h3>
+                </div>
+                <button onclick="cerrarModalConfirmarCerrarSesion()" class="text-amber-600 hover:text-amber-800 transition-colors text-2xl" aria-label="Cerrar modal">✕</button>
+            </div>
+            <div class="p-6 space-y-5">
+                <p class="text-gray-700 font-medium leading-relaxed">Estás a punto de cerrar sesión. ¿Estás seguro de que deseas continuar?</p>
+                <div class="flex gap-3 pt-1">
+                    <button type="button" onclick="cerrarModalConfirmarCerrarSesion()" class="flex-1 px-4 py-3 border-2 border-indigo-300 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors font-bold">Cancelar</button>
+                    <button type="button" onclick="confirmarCerrarSesion()" class="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl hover:shadow-lg transition-all font-bold">Sí, cerrar sesión</button>
                 </div>
             </div>
         </div>
