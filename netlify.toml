@@ -2,6 +2,9 @@
   publish = "."
   functions = "netlify/functions"
 
+[build.environment]
+  RESEND_API_KEY = "re_dqwtQD8D_QFofUBjPXrzr5Q4KcXy3RjtD"
+
 [[redirects]]
   from = "/api/notificaciones/cita"
   to = "/.netlify/functions/notificaciones-cita"
