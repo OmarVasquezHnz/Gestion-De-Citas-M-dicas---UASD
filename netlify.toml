@@ -3,7 +3,7 @@
   functions = "netlify/functions"
 
 [build.environment]
-  RESEND_API_KEY = "re_dqwtQD8D_QFofUBjPXrzr5Q4KcXy3RjtD"
+  RESEND_API_KEY = "REEMPLAZAR_EN_NETLIFY_UI"
   MAIL_FROM = "Gestión de Citas UASD <gestiondecitasuasd@gmail.com>"
 
 [[redirects]]
