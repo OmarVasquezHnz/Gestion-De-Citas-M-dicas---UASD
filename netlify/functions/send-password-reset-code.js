@@ -1,10 +1,20 @@
 // Funciones para envío de correo con Resend
 
+function getResendApiKey() {
+    return (
+        process.env.RESEND_API_KEY ||
+        process.env.RESEND_KEY ||
+        process.env.RESEND_TOKEN ||
+        ""
+    );
+}
+
 async function sendWithResend({ to, subject, text, html }) {
+    const apiKey = getResendApiKey();
     const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -40,10 +50,13 @@ exports.handler = async (event) => {
     }
 
     // Usar SOLO Resend para códigos de recuperación
-    if (!process.env.RESEND_API_KEY) {
+    if (!getResendApiKey()) {
         return {
             statusCode: 503,
-            body: JSON.stringify({ ok: false, message: "Resend no está configurado" })
+            body: JSON.stringify({
+                ok: false,
+                message: "Resend no está configurado. Define RESEND_API_KEY en Netlify (Site configuration > Environment variables) y vuelve a desplegar."
+            })
         };
     }
 
