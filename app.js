@@ -54,6 +54,24 @@ class DataManager {
             { id: 122, nombre: "Licdo. Jairo Mercedes", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-122", telefono: "809-300-0122", correo: "jairo.mercedes@centromedico.do", estado: "activo" }
         ];
 
+        const citasPruebaSemana = [
+            { id: 313, paciente: 202, medico: 101, fecha: "2026-04-20", hora: "08:10", especialidad: "Ginecología", estado: "pendiente", notas: "Cita de prueba semanal", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 314, paciente: 207, medico: 110, fecha: "2026-04-20", hora: "09:50", especialidad: "Dermatología", estado: "pendiente", notas: "Seguimiento de prueba", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 315, paciente: 210, medico: 108, fecha: "2026-04-20", hora: "11:25", especialidad: "Pediatría", estado: "pendiente", notas: "Control de rutina", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 316, paciente: 205, medico: 113, fecha: "2026-04-21", hora: "08:40", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Prueba agenda semanal", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 317, paciente: 201, medico: 115, fecha: "2026-04-21", hora: "10:20", especialidad: "Gastroenterología", estado: "pendiente", notas: "Chequeo preventivo", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 318, paciente: 206, medico: 111, fecha: "2026-04-21", hora: "14:15", especialidad: "Oftalmología", estado: "pendiente", notas: "Cita de control visual", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 319, paciente: 209, medico: 102, fecha: "2026-04-22", hora: "08:30", especialidad: "Ginecología", estado: "pendiente", notas: "Cita de prueba", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 320, paciente: 203, medico: 117, fecha: "2026-04-22", hora: "09:55", especialidad: "Neurocirugía", estado: "pendiente", notas: "Evaluación neurológica", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 321, paciente: 208, medico: 119, fecha: "2026-04-22", hora: "15:35", especialidad: "Psiquiatría / Psicología", estado: "pendiente", notas: "Prueba de carga", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 322, paciente: 204, medico: 116, fecha: "2026-04-23", hora: "08:45", especialidad: "Gastroenterología", estado: "pendiente", notas: "Seguimiento digestivo", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 323, paciente: 202, medico: 107, fecha: "2026-04-23", hora: "11:10", especialidad: "Pediatría", estado: "pendiente", notas: "Cita simulada", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 324, paciente: 210, medico: 114, fecha: "2026-04-24", hora: "09:20", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Control semanal", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 325, paciente: 206, medico: 112, fecha: "2026-04-24", hora: "13:50", especialidad: "Oftalmología", estado: "pendiente", notas: "Revisión ocular", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 326, paciente: 201, medico: 121, fecha: "2026-04-25", hora: "10:05", especialidad: "Psiquiatría / Psicología", estado: "pendiente", notas: "Sesión de evaluación", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 327, paciente: 209, medico: 103, fecha: "2026-04-26", hora: "12:30", especialidad: "Ginecología", estado: "pendiente", notas: "Cierre de semana", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() }
+        ];
+
         const citasSemilla = [
             { id: 301, paciente: 201, medico: 101, fecha: "2026-04-09", hora: "08:30", especialidad: "Ginecología", estado: "pendiente", notas: "Primera consulta", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 302, paciente: 202, medico: 108, fecha: "2026-04-09", hora: "10:45", especialidad: "Pediatría", estado: "pendiente", notas: "Seguimiento general", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
@@ -66,7 +84,8 @@ class DataManager {
             { id: 309, paciente: 209, medico: 106, fecha: "2026-04-13", hora: "08:20", especialidad: "Ginecología", estado: "pendiente", notas: "Consulta de rutina", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 310, paciente: 210, medico: 107, fecha: "2026-04-13", hora: "14:35", especialidad: "Pediatría", estado: "pendiente", notas: "Control periódico", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 311, paciente: 201, medico: 113, fecha: "2026-04-14", hora: "09:40", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Molestias de oído", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
-            { id: 312, paciente: 204, medico: 116, fecha: "2026-04-14", hora: "16:00", especialidad: "Gastroenterología", estado: "pendiente", notas: "Revisión de resultados", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() }
+            { id: 312, paciente: 204, medico: 116, fecha: "2026-04-14", hora: "16:00", especialidad: "Gastroenterología", estado: "pendiente", notas: "Revisión de resultados", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            ...citasPruebaSemana
         ];
 
         if (localStorage.getItem(this.seedVersionKey) !== 'done') {
@@ -105,6 +124,13 @@ class DataManager {
         
         if (!this.citas || this.citas.length === 0) {
             this.citas = citasSemilla;
+            this.saveData('citas', this.citas);
+        }
+
+        const idsCitasActuales = new Set(this.citas.map(cita => Number(cita.id)));
+        const citasPruebaFaltantes = citasPruebaSemana.filter(cita => !idsCitasActuales.has(Number(cita.id)));
+        if (citasPruebaFaltantes.length > 0) {
+            this.citas = [...this.citas, ...citasPruebaFaltantes];
             this.saveData('citas', this.citas);
         }
 
