@@ -11,22 +11,41 @@ function getResendApiKey() {
 
 async function sendWithResend({ to, subject, text, html }) {
     const apiKey = getResendApiKey();
-    const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            from: getMailFromAddress(),
-            to,
-            subject,
-            text,
-            html
-        })
-    });
+        const fromAddress = getMailFromAddress();
 
-    const payload = await response.json().catch(() => ({}));
+        async function trySend(from) {
+            const response = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    from,
+                    to,
+                    subject,
+                    text,
+                    html
+                })
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            return { response, payload };
+        }
+
+        let { response, payload } = await trySend(fromAddress);
+
+        // Fallback para cuentas nuevas de Resend sin dominio verificado.
+        if (!response.ok) {
+            const rawError = String(payload.message || payload.error || "").toLowerCase();
+            const fromIsGmail = /@gmail\.com/i.test(fromAddress);
+            const needsVerifiedDomain = rawError.includes("domain is not verified") || rawError.includes("verify your domain");
+
+            if (fromIsGmail || needsVerifiedDomain) {
+                ({ response, payload } = await trySend("onboarding@resend.dev"));
+            }
+        }
+
     if (!response.ok) {
         const detail = payload.message || payload.error || "No se pudo enviar el correo con Resend";
         throw new Error(detail);
