@@ -250,6 +250,21 @@ class DataManager {
                 await this.saveDataRemota(key, local);
             }
         }
+
+        // Migración: rellenar accionPor en datos que vienen de Supabase sin ese campo
+        let migPacientes = false;
+        this.pacientes = this.pacientes.map(p => {
+            if (!p.accionPor) { migPacientes = true; return { ...p, accion: p.accion || 'Creado', accionPor: 'admin1', accionAt: p.accionAt || new Date().toISOString() }; }
+            return p;
+        });
+        if (migPacientes) { localStorage.setItem('pacientes', JSON.stringify(this.pacientes)); await this.saveDataRemota('pacientes', this.pacientes); }
+
+        let migMedicos = false;
+        this.medicos = this.medicos.map(m => {
+            if (!m.accionPor) { migMedicos = true; return { ...m, accion: m.accion || 'Creado', accionPor: 'admin1', accionAt: m.accionAt || new Date().toISOString() }; }
+            return m;
+        });
+        if (migMedicos) { localStorage.setItem('medicos', JSON.stringify(this.medicos)); await this.saveDataRemota('medicos', this.medicos); }
     }
 
     normalizarArray(data) {
