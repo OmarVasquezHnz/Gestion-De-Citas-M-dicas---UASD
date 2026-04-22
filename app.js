@@ -17,16 +17,16 @@ class DataManager {
         this.usuarios = this.normalizarArray(this.loadData('usuarios'));
         
         const pacientesSemilla = [
-            { id: 201, nombre: "Luis", apellido: "Paredes", cedula: "001-7812456-2", matricula: "PAC-2026001", fecha: "1992-08-14", telefono: "809-812-4412", correo: "luis.paredes@correo.com", sangre: "O+", direccion: "Santo Domingo Este" },
-            { id: 202, nombre: "Andrea", apellido: "Gómez", cedula: "402-4411287-6", matricula: "PAC-2026002", fecha: "1989-05-22", telefono: "829-334-7715", correo: "andrea.gomez@correo.com", sangre: "A+", direccion: "Santiago" },
-            { id: 203, nombre: "Carlos", apellido: "Reyes", cedula: "031-9922144-9", matricula: "PAC-2026003", fecha: "1998-01-09", telefono: "849-552-9041", correo: "carlos.reyes@correo.com", sangre: "B+", direccion: "La Vega" },
-            { id: 204, nombre: "Pamela", apellido: "Mota", cedula: "223-6674120-1", matricula: "PAC-2026004", fecha: "1994-11-30", telefono: "809-402-1188", correo: "pamela.mota@correo.com", sangre: "AB+", direccion: "San Cristóbal" },
-            { id: 205, nombre: "Jonathan", apellido: "Núñez", cedula: "055-1247780-3", matricula: "PAC-2026005", fecha: "1987-03-16", telefono: "829-771-3304", correo: "jonathan.nunez@correo.com", sangre: "O-", direccion: "San Pedro de Macorís" },
-            { id: 206, nombre: "Katherine", apellido: "Valdez", cedula: "402-1098321-7", matricula: "PAC-2026006", fecha: "1996-06-04", telefono: "849-921-6650", correo: "katherine.valdez@correo.com", sangre: "A-", direccion: "Puerto Plata" },
-            { id: 207, nombre: "Enmanuel", apellido: "Sosa", cedula: "012-9087612-5", matricula: "PAC-2026007", fecha: "1990-09-11", telefono: "809-613-0098", correo: "enmanuel.sosa@correo.com", sangre: "B-", direccion: "Moca" },
-            { id: 208, nombre: "Rosa", apellido: "Tejeda", cedula: "224-5176033-8", matricula: "PAC-2026008", fecha: "1985-12-27", telefono: "829-208-4407", correo: "rosa.tejeda@correo.com", sangre: "AB-", direccion: "Baní" },
-            { id: 209, nombre: "Miguel", apellido: "Lantigua", cedula: "001-3351882-4", matricula: "PAC-2026009", fecha: "1993-04-19", telefono: "849-430-2261", correo: "miguel.lantigua@correo.com", sangre: "O+", direccion: "Bonao" },
-            { id: 210, nombre: "Yamilex", apellido: "Paulino", cedula: "402-7784521-0", matricula: "PAC-2026010", fecha: "2000-02-06", telefono: "809-982-7105", correo: "yamilex.paulino@correo.com", sangre: "A+", direccion: "Higüey" }
+            { id: 201, nombre: "Luis", apellido: "Paredes", cedula: "001-7812456-2", matricula: "100470797", fecha: "1992-08-14", telefono: "809-812-4412", correo: "luis.paredes@correo.com", sangre: "O+", direccion: "Santo Domingo Este" },
+            { id: 202, nombre: "Andrea", apellido: "Gómez", cedula: "402-4411287-6", matricula: "100470798", fecha: "1989-05-22", telefono: "829-334-7715", correo: "andrea.gomez@correo.com", sangre: "A+", direccion: "Santiago" },
+            { id: 203, nombre: "Carlos", apellido: "Reyes", cedula: "031-9922144-9", matricula: "100470799", fecha: "1998-01-09", telefono: "849-552-9041", correo: "carlos.reyes@correo.com", sangre: "B+", direccion: "La Vega" },
+            { id: 204, nombre: "Pamela", apellido: "Mota", cedula: "223-6674120-1", matricula: "100470800", fecha: "1994-11-30", telefono: "809-402-1188", correo: "pamela.mota@correo.com", sangre: "AB+", direccion: "San Cristóbal" },
+            { id: 205, nombre: "Jonathan", apellido: "Núñez", cedula: "055-1247780-3", matricula: "100470801", fecha: "1987-03-16", telefono: "829-771-3304", correo: "jonathan.nunez@correo.com", sangre: "O-", direccion: "San Pedro de Macorís" },
+            { id: 206, nombre: "Katherine", apellido: "Valdez", cedula: "402-1098321-7", matricula: "100470802", fecha: "1996-06-04", telefono: "849-921-6650", correo: "katherine.valdez@correo.com", sangre: "A-", direccion: "Puerto Plata" },
+            { id: 207, nombre: "Enmanuel", apellido: "Sosa", cedula: "012-9087612-5", matricula: "100470803", fecha: "1990-09-11", telefono: "809-613-0098", correo: "enmanuel.sosa@correo.com", sangre: "B-", direccion: "Moca" },
+            { id: 208, nombre: "Rosa", apellido: "Tejeda", cedula: "224-5176033-8", matricula: "100470804", fecha: "1985-12-27", telefono: "829-208-4407", correo: "rosa.tejeda@correo.com", sangre: "AB-", direccion: "Baní" },
+            { id: 209, nombre: "Miguel", apellido: "Lantigua", cedula: "001-3351882-4", matricula: "100470805", fecha: "1993-04-19", telefono: "849-430-2261", correo: "miguel.lantigua@correo.com", sangre: "O+", direccion: "Bonao" },
+            { id: 210, nombre: "Yamilex", apellido: "Paulino", cedula: "402-7784521-0", matricula: "100470806", fecha: "2000-02-06", telefono: "809-982-7105", correo: "yamilex.paulino@correo.com", sangre: "A+", direccion: "Higüey" }
         ];
 
         const medicosSemilla = [
@@ -51,7 +51,9 @@ class DataManager {
             { id: 119, nombre: "Dr. Larry Gómez", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-119", telefono: "809-300-0119", correo: "larry.gomez@centromedico.do", estado: "activo" },
             { id: 120, nombre: "Licda. Ruth Brito", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-120", telefono: "809-300-0120", correo: "ruth.brito@centromedico.do", estado: "activo" },
             { id: 121, nombre: "Dra. Mercedes Duarte", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-121", telefono: "809-300-0121", correo: "mercedes.duarte@centromedico.do", estado: "activo" },
-            { id: 122, nombre: "Licdo. Jairo Mercedes", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-122", telefono: "809-300-0122", correo: "jairo.mercedes@centromedico.do", estado: "activo" }
+            { id: 122, nombre: "Licdo. Jairo Mercedes", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-122", telefono: "809-300-0122", correo: "jairo.mercedes@centromedico.do", estado: "activo" },
+            { id: 123, nombre: "Dr. Esteban Rodríguez", especialidad: "Cardiología", cedula: "COD-CAR-123", telefono: "809-300-0123", correo: "esteban.rodriguez@centromedico.do", estado: "activo" },
+            { id: 124, nombre: "Dra. Laura Henríquez", especialidad: "Cardiología", cedula: "COD-CAR-124", telefono: "809-300-0124", correo: "laura.henriquez@centromedico.do", estado: "activo" }
         ];
 
         const citasPruebaSemana = [
@@ -61,13 +63,13 @@ class DataManager {
             { id: 316, paciente: 205, medico: 113, fecha: "2026-04-21", hora: "08:40", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Prueba agenda semanal", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 317, paciente: 201, medico: 115, fecha: "2026-04-21", hora: "10:20", especialidad: "Gastroenterología", estado: "pendiente", notas: "Chequeo preventivo", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 318, paciente: 206, medico: 111, fecha: "2026-04-21", hora: "14:15", especialidad: "Oftalmología", estado: "pendiente", notas: "Cita de control visual", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
-            { id: 319, paciente: 209, medico: 102, fecha: "2026-04-22", hora: "08:30", especialidad: "Ginecología", estado: "pendiente", notas: "Cita de prueba", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 319, paciente: 209, medico: 123, fecha: "2026-04-22", hora: "08:30", especialidad: "Cardiología", estado: "pendiente", notas: "Chequeo cardiovascular", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 320, paciente: 203, medico: 117, fecha: "2026-04-22", hora: "09:55", especialidad: "Neurocirugía", estado: "pendiente", notas: "Evaluación neurológica", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 321, paciente: 208, medico: 119, fecha: "2026-04-22", hora: "15:35", especialidad: "Psiquiatría / Psicología", estado: "pendiente", notas: "Prueba de carga", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 322, paciente: 204, medico: 116, fecha: "2026-04-23", hora: "08:45", especialidad: "Gastroenterología", estado: "pendiente", notas: "Seguimiento digestivo", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 323, paciente: 202, medico: 107, fecha: "2026-04-23", hora: "11:10", especialidad: "Pediatría", estado: "pendiente", notas: "Cita simulada", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 324, paciente: 210, medico: 114, fecha: "2026-04-24", hora: "09:20", especialidad: "Otorrinolaringología", estado: "pendiente", notas: "Control semanal", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
-            { id: 325, paciente: 206, medico: 112, fecha: "2026-04-24", hora: "13:50", especialidad: "Oftalmología", estado: "pendiente", notas: "Revisión ocular", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
+            { id: 325, paciente: 206, medico: 124, fecha: "2026-04-24", hora: "13:50", especialidad: "Cardiología", estado: "pendiente", notas: "Control de presión arterial", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 326, paciente: 201, medico: 121, fecha: "2026-04-25", hora: "10:05", especialidad: "Psiquiatría / Psicología", estado: "pendiente", notas: "Sesión de evaluación", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() },
             { id: 327, paciente: 209, medico: 103, fecha: "2026-04-26", hora: "12:30", especialidad: "Ginecología", estado: "pendiente", notas: "Cierre de semana", accion: "Creada", accionPor: "admin1", accionAt: new Date().toISOString() }
         ];
@@ -115,12 +117,21 @@ class DataManager {
         this.pacientes = this.pacientes.map(paciente => {
             if (!paciente || typeof paciente !== 'object') return paciente;
             const correoNormalizado = (paciente.correo || paciente.email || '').trim();
+            const matriculaNumerica = String((paciente.matricula || '')).replace(/\D/g, '').slice(0, 9);
             return {
                 ...paciente,
-                correo: correoNormalizado
+                correo: correoNormalizado,
+                matricula: matriculaNumerica || ''
             };
         });
         this.saveData('pacientes', this.pacientes);
+
+        const idsMedicosActuales = new Set(this.medicos.map(medico => Number(medico.id)));
+        const medicosFaltantes = medicosSemilla.filter(medico => !idsMedicosActuales.has(Number(medico.id)));
+        if (medicosFaltantes.length > 0) {
+            this.medicos = [...this.medicos, ...medicosFaltantes];
+            this.saveData('medicos', this.medicos);
+        }
         
         if (!this.citas || this.citas.length === 0) {
             this.citas = citasSemilla;
@@ -927,11 +938,13 @@ function guardarPaciente() {
         return;
     }
 
+    const matriculaNormalizada = document.getElementById('pacMatricula').value.trim().replace(/\D/g, '').slice(0, 9);
+
     const paciente = {
         nombre,
         apellido,
         cedula,
-        matricula: document.getElementById('pacMatricula').value.trim(),
+        matricula: matriculaNormalizada,
         fecha: document.getElementById('pacFecha').value,
         telefono: document.getElementById('pacTelefono').value,
         correo,
