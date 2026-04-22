@@ -17,43 +17,43 @@ class DataManager {
         this.usuarios = this.normalizarArray(this.loadData('usuarios'));
         
         const pacientesSemilla = [
-            { id: 201, nombre: "Luis", apellido: "Paredes", cedula: "001-7812456-2", matricula: "100470797", fecha: "1992-08-14", telefono: "809-812-4412", correo: "luis.paredes@correo.com", sangre: "O+", direccion: "Santo Domingo Este" },
-            { id: 202, nombre: "Andrea", apellido: "Gómez", cedula: "402-4411287-6", matricula: "100470798", fecha: "1989-05-22", telefono: "829-334-7715", correo: "andrea.gomez@correo.com", sangre: "A+", direccion: "Santiago" },
-            { id: 203, nombre: "Carlos", apellido: "Reyes", cedula: "031-9922144-9", matricula: "100470799", fecha: "1998-01-09", telefono: "849-552-9041", correo: "carlos.reyes@correo.com", sangre: "B+", direccion: "La Vega" },
-            { id: 204, nombre: "Pamela", apellido: "Mota", cedula: "223-6674120-1", matricula: "100470800", fecha: "1994-11-30", telefono: "809-402-1188", correo: "pamela.mota@correo.com", sangre: "AB+", direccion: "San Cristóbal" },
-            { id: 205, nombre: "Jonathan", apellido: "Núñez", cedula: "055-1247780-3", matricula: "100470801", fecha: "1987-03-16", telefono: "829-771-3304", correo: "jonathan.nunez@correo.com", sangre: "O-", direccion: "San Pedro de Macorís" },
-            { id: 206, nombre: "Katherine", apellido: "Valdez", cedula: "402-1098321-7", matricula: "100470802", fecha: "1996-06-04", telefono: "849-921-6650", correo: "katherine.valdez@correo.com", sangre: "A-", direccion: "Puerto Plata" },
-            { id: 207, nombre: "Enmanuel", apellido: "Sosa", cedula: "012-9087612-5", matricula: "100470803", fecha: "1990-09-11", telefono: "809-613-0098", correo: "enmanuel.sosa@correo.com", sangre: "B-", direccion: "Moca" },
-            { id: 208, nombre: "Rosa", apellido: "Tejeda", cedula: "224-5176033-8", matricula: "100470804", fecha: "1985-12-27", telefono: "829-208-4407", correo: "rosa.tejeda@correo.com", sangre: "AB-", direccion: "Baní" },
-            { id: 209, nombre: "Miguel", apellido: "Lantigua", cedula: "001-3351882-4", matricula: "100470805", fecha: "1993-04-19", telefono: "849-430-2261", correo: "miguel.lantigua@correo.com", sangre: "O+", direccion: "Bonao" },
-            { id: 210, nombre: "Yamilex", apellido: "Paulino", cedula: "402-7784521-0", matricula: "100470806", fecha: "2000-02-06", telefono: "809-982-7105", correo: "yamilex.paulino@correo.com", sangre: "A+", direccion: "Higüey" }
+            { id: 201, nombre: "Luis", apellido: "Paredes", cedula: "001-7812456-2", matricula: "100470797", fecha: "1992-08-14", telefono: "809-812-4412", correo: "luis.paredes@correo.com", sangre: "O+", direccion: "Santo Domingo Este", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 202, nombre: "Andrea", apellido: "Gómez", cedula: "402-4411287-6", matricula: "100470798", fecha: "1989-05-22", telefono: "829-334-7715", correo: "andrea.gomez@correo.com", sangre: "A+", direccion: "Santiago", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:05:00.000Z" },
+            { id: 203, nombre: "Carlos", apellido: "Reyes", cedula: "031-9922144-9", matricula: "100470799", fecha: "1998-01-09", telefono: "849-552-9041", correo: "carlos.reyes@correo.com", sangre: "B+", direccion: "La Vega", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:10:00.000Z" },
+            { id: 204, nombre: "Pamela", apellido: "Mota", cedula: "223-6674120-1", matricula: "100470800", fecha: "1994-11-30", telefono: "809-402-1188", correo: "pamela.mota@correo.com", sangre: "AB+", direccion: "San Cristóbal", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:15:00.000Z" },
+            { id: 205, nombre: "Jonathan", apellido: "Núñez", cedula: "055-1247780-3", matricula: "100470801", fecha: "1987-03-16", telefono: "829-771-3304", correo: "jonathan.nunez@correo.com", sangre: "O-", direccion: "San Pedro de Macorís", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:20:00.000Z" },
+            { id: 206, nombre: "Katherine", apellido: "Valdez", cedula: "402-1098321-7", matricula: "100470802", fecha: "1996-06-04", telefono: "849-921-6650", correo: "katherine.valdez@correo.com", sangre: "A-", direccion: "Puerto Plata", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:25:00.000Z" },
+            { id: 207, nombre: "Enmanuel", apellido: "Sosa", cedula: "012-9087612-5", matricula: "100470803", fecha: "1990-09-11", telefono: "809-613-0098", correo: "enmanuel.sosa@correo.com", sangre: "B-", direccion: "Moca", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:30:00.000Z" },
+            { id: 208, nombre: "Rosa", apellido: "Tejeda", cedula: "224-5176033-8", matricula: "100470804", fecha: "1985-12-27", telefono: "829-208-4407", correo: "rosa.tejeda@correo.com", sangre: "AB-", direccion: "Baní", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:35:00.000Z" },
+            { id: 209, nombre: "Miguel", apellido: "Lantigua", cedula: "001-3351882-4", matricula: "100470805", fecha: "1993-04-19", telefono: "849-430-2261", correo: "miguel.lantigua@correo.com", sangre: "O+", direccion: "Bonao", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:40:00.000Z" },
+            { id: 210, nombre: "Yamilex", apellido: "Paulino", cedula: "402-7784521-0", matricula: "100470806", fecha: "2000-02-06", telefono: "809-982-7105", correo: "yamilex.paulino@correo.com", sangre: "A+", direccion: "Higüey", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:45:00.000Z" }
         ];
 
         const medicosSemilla = [
-            { id: 101, nombre: "Dra. Ángela Sánchez", especialidad: "Ginecología", cedula: "COD-GIN-101", telefono: "809-300-0101", correo: "angela.sanchez@centromedico.do", estado: "activo" },
-            { id: 102, nombre: "Dra. Carmen Barreras", especialidad: "Ginecología", cedula: "COD-GIN-102", telefono: "809-300-0102", correo: "carmen.barreras@centromedico.do", estado: "activo" },
-            { id: 103, nombre: "Dra. Franka Valoy", especialidad: "Ginecología", cedula: "COD-GIN-103", telefono: "809-300-0103", correo: "franka.valoy@centromedico.do", estado: "activo" },
-            { id: 104, nombre: "Dr. Jou Fernández", especialidad: "Ginecología", cedula: "COD-GIN-104", telefono: "809-300-0104", correo: "jou.fernandez@centromedico.do", estado: "activo" },
-            { id: 105, nombre: "Dr. Wilton Martínez", especialidad: "Ginecología", cedula: "COD-GIN-105", telefono: "809-300-0105", correo: "wilton.martinez@centromedico.do", estado: "activo" },
-            { id: 106, nombre: "Dra. Sabrina Paulino", especialidad: "Ginecología", cedula: "COD-GIN-106", telefono: "809-300-0106", correo: "sabrina.paulino@centromedico.do", estado: "activo" },
-            { id: 107, nombre: "Dra. Issa Matos", especialidad: "Pediatría", cedula: "COD-PED-107", telefono: "809-300-0107", correo: "issa.matos@centromedico.do", estado: "activo" },
-            { id: 108, nombre: "Dra. Isabel Castillo", especialidad: "Pediatría", cedula: "COD-PED-108", telefono: "809-300-0108", correo: "isabel.castillo@centromedico.do", estado: "activo" },
-            { id: 109, nombre: "Dra. Johanny Sánchez", especialidad: "Pediatría", cedula: "COD-PED-109", telefono: "809-300-0109", correo: "johanny.sanchez@centromedico.do", estado: "activo" },
-            { id: 110, nombre: "Dra. Marianela Gonzales", especialidad: "Dermatología", cedula: "COD-DER-110", telefono: "809-300-0110", correo: "marianela.gonzales@centromedico.do", estado: "activo" },
-            { id: 111, nombre: "Dr. Juan Pablos Lagos", especialidad: "Oftalmología", cedula: "COD-OFT-111", telefono: "809-300-0111", correo: "juan.lagos@centromedico.do", estado: "activo" },
-            { id: 112, nombre: "Dra. Demester Marchena", especialidad: "Oftalmología", cedula: "COD-OFT-112", telefono: "809-300-0112", correo: "demester.marchena@centromedico.do", estado: "activo" },
-            { id: 113, nombre: "Dr. José Almonte", especialidad: "Otorrinolaringología", cedula: "COD-OTO-113", telefono: "809-300-0113", correo: "jose.almonte@centromedico.do", estado: "activo" },
-            { id: 114, nombre: "Dr. Carlos Calderón", especialidad: "Otorrinolaringología", cedula: "COD-OTO-114", telefono: "809-300-0114", correo: "carlos.calderon@centromedico.do", estado: "activo" },
-            { id: 115, nombre: "Dra. Jamillet Mateo", especialidad: "Gastroenterología", cedula: "COD-GAS-115", telefono: "809-300-0115", correo: "jamillet.mateo@centromedico.do", estado: "activo" },
-            { id: 116, nombre: "Dra. Mildred Pichardo", especialidad: "Gastroenterología", cedula: "COD-GAS-116", telefono: "809-300-0116", correo: "mildred.pichardo@centromedico.do", estado: "activo" },
-            { id: 117, nombre: "Dr. Amaury García", especialidad: "Neurocirugía", cedula: "COD-NEU-117", telefono: "809-300-0117", correo: "amaury.garcia@centromedico.do", estado: "activo" },
-            { id: 118, nombre: "Dra. Patricia Reyna", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-118", telefono: "809-300-0118", correo: "patricia.reyna@centromedico.do", estado: "activo" },
-            { id: 119, nombre: "Dr. Larry Gómez", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-119", telefono: "809-300-0119", correo: "larry.gomez@centromedico.do", estado: "activo" },
-            { id: 120, nombre: "Licda. Ruth Brito", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-120", telefono: "809-300-0120", correo: "ruth.brito@centromedico.do", estado: "activo" },
-            { id: 121, nombre: "Dra. Mercedes Duarte", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-121", telefono: "809-300-0121", correo: "mercedes.duarte@centromedico.do", estado: "activo" },
-            { id: 122, nombre: "Licdo. Jairo Mercedes", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-122", telefono: "809-300-0122", correo: "jairo.mercedes@centromedico.do", estado: "activo" },
-            { id: 123, nombre: "Dr. Esteban Rodríguez", especialidad: "Cardiología", cedula: "COD-CAR-123", telefono: "809-300-0123", correo: "esteban.rodriguez@centromedico.do", estado: "activo" },
-            { id: 124, nombre: "Dra. Laura Henríquez", especialidad: "Cardiología", cedula: "COD-CAR-124", telefono: "809-300-0124", correo: "laura.henriquez@centromedico.do", estado: "activo" }
+            { id: 101, nombre: "Dra. Ángela Sánchez", especialidad: "Ginecología", cedula: "COD-GIN-101", telefono: "809-300-0101", correo: "angela.sanchez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 102, nombre: "Dra. Carmen Barreras", especialidad: "Ginecología", cedula: "COD-GIN-102", telefono: "809-300-0102", correo: "carmen.barreras@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 103, nombre: "Dra. Franka Valoy", especialidad: "Ginecología", cedula: "COD-GIN-103", telefono: "809-300-0103", correo: "franka.valoy@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 104, nombre: "Dr. Jou Fernández", especialidad: "Ginecología", cedula: "COD-GIN-104", telefono: "809-300-0104", correo: "jou.fernandez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 105, nombre: "Dr. Wilton Martínez", especialidad: "Ginecología", cedula: "COD-GIN-105", telefono: "809-300-0105", correo: "wilton.martinez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 106, nombre: "Dra. Sabrina Paulino", especialidad: "Ginecología", cedula: "COD-GIN-106", telefono: "809-300-0106", correo: "sabrina.paulino@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 107, nombre: "Dra. Issa Matos", especialidad: "Pediatría", cedula: "COD-PED-107", telefono: "809-300-0107", correo: "issa.matos@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 108, nombre: "Dra. Isabel Castillo", especialidad: "Pediatría", cedula: "COD-PED-108", telefono: "809-300-0108", correo: "isabel.castillo@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 109, nombre: "Dra. Johanny Sánchez", especialidad: "Pediatría", cedula: "COD-PED-109", telefono: "809-300-0109", correo: "johanny.sanchez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 110, nombre: "Dra. Marianela Gonzales", especialidad: "Dermatología", cedula: "COD-DER-110", telefono: "809-300-0110", correo: "marianela.gonzales@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 111, nombre: "Dr. Juan Pablos Lagos", especialidad: "Oftalmología", cedula: "COD-OFT-111", telefono: "809-300-0111", correo: "juan.lagos@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 112, nombre: "Dra. Demester Marchena", especialidad: "Oftalmología", cedula: "COD-OFT-112", telefono: "809-300-0112", correo: "demester.marchena@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 113, nombre: "Dr. José Almonte", especialidad: "Otorrinolaringología", cedula: "COD-OTO-113", telefono: "809-300-0113", correo: "jose.almonte@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 114, nombre: "Dr. Carlos Calderón", especialidad: "Otorrinolaringología", cedula: "COD-OTO-114", telefono: "809-300-0114", correo: "carlos.calderon@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 115, nombre: "Dra. Jamillet Mateo", especialidad: "Gastroenterología", cedula: "COD-GAS-115", telefono: "809-300-0115", correo: "jamillet.mateo@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 116, nombre: "Dra. Mildred Pichardo", especialidad: "Gastroenterología", cedula: "COD-GAS-116", telefono: "809-300-0116", correo: "mildred.pichardo@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 117, nombre: "Dr. Amaury García", especialidad: "Neurocirugía", cedula: "COD-NEU-117", telefono: "809-300-0117", correo: "amaury.garcia@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 118, nombre: "Dra. Patricia Reyna", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-118", telefono: "809-300-0118", correo: "patricia.reyna@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 119, nombre: "Dr. Larry Gómez", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-119", telefono: "809-300-0119", correo: "larry.gomez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 120, nombre: "Licda. Ruth Brito", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-120", telefono: "809-300-0120", correo: "ruth.brito@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 121, nombre: "Dra. Mercedes Duarte", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-121", telefono: "809-300-0121", correo: "mercedes.duarte@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 122, nombre: "Licdo. Jairo Mercedes", especialidad: "Psiquiatría / Psicología", cedula: "COD-PSI-122", telefono: "809-300-0122", correo: "jairo.mercedes@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 123, nombre: "Dr. Esteban Rodríguez", especialidad: "Cardiología", cedula: "COD-CAR-123", telefono: "809-300-0123", correo: "esteban.rodriguez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" },
+            { id: 124, nombre: "Dra. Laura Henríquez", especialidad: "Cardiología", cedula: "COD-CAR-124", telefono: "809-300-0124", correo: "laura.henriquez@centromedico.do", estado: "activo", accion: "Creado", accionPor: "admin1", accionAt: "2026-01-10T08:00:00.000Z" }
         ];
 
         const citasPruebaSemana = [
@@ -150,6 +150,21 @@ class DataManager {
             estado: (cita.estado || 'pendiente').trim().toLowerCase()
         }));
         this.saveData('citas', this.citas);
+
+        // Migración: rellenar accionPor en registros sin historial
+        let migracionCambios = false;
+        this.pacientes = this.pacientes.map(p => {
+            if (!p.accionPor) { migracionCambios = true; return { ...p, accion: p.accion || 'Creado', accionPor: 'admin1', accionAt: p.accionAt || new Date().toISOString() }; }
+            return p;
+        });
+        if (migracionCambios) this.saveData('pacientes', this.pacientes);
+
+        migracionCambios = false;
+        this.medicos = this.medicos.map(m => {
+            if (!m.accionPor) { migracionCambios = true; return { ...m, accion: m.accion || 'Creado', accionPor: 'admin1', accionAt: m.accionAt || new Date().toISOString() }; }
+            return m;
+        });
+        if (migracionCambios) this.saveData('medicos', this.medicos);
 
         const usuariosPermitidos = ['admin1', 'admin2'];
         this.usuarios = this.usuarios.filter(u => usuariosPermitidos.includes(u.username));
