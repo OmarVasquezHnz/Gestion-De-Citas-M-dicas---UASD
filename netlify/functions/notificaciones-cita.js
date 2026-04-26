@@ -1,5 +1,84 @@
 const nodemailer = require("nodemailer");
 
+function canUseResend() {
+    return !!process.env.RESEND_API_KEY;
+}
+
+function canUseBrevoApi() {
+    return !!process.env.BREVO_API_KEY;
+}
+
+function parseFromAddress(fromValue) {
+    const raw = String(fromValue || "").trim();
+    const match = raw.match(/^(.*)<([^>]+)>$/);
+
+    if (!match) {
+        return { name: undefined, email: raw };
+    }
+
+    const name = match[1].trim().replace(/^"|"$/g, "");
+    const email = match[2].trim();
+    return {
+        name: name || undefined,
+        email
+    };
+}
+
+async function sendWithResend({ to, subject, text, html }) {
+    const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            from: getMailFromAddress(),
+            to,
+            subject,
+            text,
+            html
+        })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        const detail = payload.message || payload.error || "No se pudo enviar el correo con Resend";
+        throw new Error(detail);
+    }
+
+    return payload;
+}
+
+async function sendWithBrevoApi({ to, subject, text, html }) {
+    const sender = parseFromAddress(getMailFromAddress());
+    if (!sender.email) {
+        throw new Error("MAIL_FROM no es valido para Brevo API");
+    }
+
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+            "api-key": process.env.BREVO_API_KEY,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            sender,
+            to: [{ email: to }],
+            subject,
+            textContent: text,
+            htmlContent: html
+        })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        const detail = payload.message || payload.code || "No se pudo enviar el correo con Brevo API";
+        throw new Error(detail);
+    }
+
+    return payload;
+}
+
 function getMailTransporter() {
     const smtpHost = process.env.SMTP_HOST;
     const smtpPort = Number(process.env.SMTP_PORT || 587);
@@ -46,11 +125,14 @@ exports.handler = async (event) => {
         };
     }
 
+    const usarResend = canUseResend();
+    const usarBrevoApi = canUseBrevoApi();
     const transporter = getMailTransporter();
-    if (!transporter) {
+
+    if (!transporter && !usarResend && !usarBrevoApi) {
         return {
             statusCode: 503,
-            body: JSON.stringify({ ok: false, message: "El correo no esta configurado en el servidor" })
+            body: JSON.stringify({ ok: false, message: "El correo no esta configurado (SMTP, Resend o Brevo API)" })
         };
     }
 
@@ -102,17 +184,38 @@ exports.handler = async (event) => {
     `;
 
     try {
-        const info = await transporter.sendMail({
-            from: getMailFromAddress(),
-            to: destinatario,
-            subject,
-            text,
-            html
-        });
+        let messageId = null;
+
+        if (usarResend) {
+            const resendResult = await sendWithResend({
+                to: destinatario,
+                subject,
+                text,
+                html
+            });
+            messageId = resendResult.id || null;
+        } else if (usarBrevoApi) {
+            const brevoResult = await sendWithBrevoApi({
+                to: destinatario,
+                subject,
+                text,
+                html
+            });
+            messageId = brevoResult.messageId || null;
+        } else {
+            const info = await transporter.sendMail({
+                from: getMailFromAddress(),
+                to: destinatario,
+                subject,
+                text,
+                html
+            });
+            messageId = info.messageId;
+        }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ ok: true, messageId: info.messageId })
+            body: JSON.stringify({ ok: true, messageId })
         };
     } catch (error) {
         console.error("Error enviando correo de cita:", error);
