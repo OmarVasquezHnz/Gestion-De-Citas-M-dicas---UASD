@@ -166,17 +166,23 @@ class DataManager {
         });
         if (migracionCambios) this.saveData('medicos', this.medicos);
 
-        const usuariosPermitidos = ['admin1', 'admin2'];
-        this.usuarios = this.usuarios.filter(u => usuariosPermitidos.includes(u.username));
-
         const defaultUsuarios = [
             { id: 1, nombre: 'Administrador Principal', username: 'admin1', correo: 'admin1@centromedico.local', rol: 'admin', estado: 'activo', password: '12345', ultimoAcceso: null, createdAt: new Date().toISOString() },
-            { id: 2, nombre: 'Administrador Secundario', username: 'admin2', correo: 'admin2@centromedico.local', rol: 'admin', estado: 'activo', password: '123456', ultimoAcceso: null, createdAt: new Date().toISOString() }
+            { id: 2, nombre: 'Administrador Secundario', username: 'admin2', correo: 'admin2@centromedico.local', rol: 'admin', estado: 'activo', password: '123456', ultimoAcceso: null, createdAt: new Date().toISOString() },
+            { id: 3, nombre: 'Recepción Principal', username: 'recepcion1', correo: 'recepcion1@centromedico.local', rol: 'recepcion', estado: 'activo', password: '123456', ultimoAcceso: null, createdAt: new Date().toISOString() }
         ];
         defaultUsuarios.forEach(def => {
             if (!this.usuarios.find(u => u.username === def.username)) {
                 this.usuarios.push(def);
             }
+        });
+
+        // admin1 siempre debe conservar privilegios de administrador principal
+        this.usuarios = this.usuarios.map(usuario => {
+            if (usuario.username === 'admin1') {
+                return { ...usuario, rol: 'admin', estado: 'activo' };
+            }
+            return usuario;
         });
         this.saveData('usuarios', this.usuarios);
     }
@@ -532,13 +538,37 @@ function cerrarSidebarMovil() {
     overlay.classList.add('hidden');
 }
 
+function esAdministradorActual() {
+    const rolActual = localStorage.getItem('loggedInRol') || '';
+    return rolActual === 'admin';
+}
+
+function aplicarPermisosPorRol() {
+    const esAdmin = esAdministradorActual();
+    const linksRestringidos = document.querySelectorAll('.nav-link[data-section="medicos"], .nav-link[data-section="usuarios"]');
+
+    linksRestringidos.forEach(link => {
+        if (esAdmin) {
+            link.classList.remove('hidden');
+        } else {
+            link.classList.add('hidden');
+        }
+    });
+
+    const seccionMedicos = document.getElementById('medicos');
+    const seccionUsuarios = document.getElementById('usuarios');
+    if (!esAdmin) {
+        if (seccionMedicos) seccionMedicos.classList.add('hidden');
+        if (seccionUsuarios) seccionUsuarios.classList.add('hidden');
+    }
+}
+
 // ============================================
 // NAVEGACIÓN
 // ============================================
 
 function mostrarSeccion(id) {
-    const rolActual = localStorage.getItem('loggedInRol') || '';
-    if (rolActual !== 'admin' && (id === 'medicos' || id === 'usuarios')) {
+    if (!esAdministradorActual() && (id === 'medicos' || id === 'usuarios')) {
         mostrarNotificacion('Acceso Restringido', 'Solo el administrador puede acceder a esta sección', 'error');
         return;
     }
@@ -2454,11 +2484,14 @@ function verificarSesion() {
         const existe = dataManager.usuarios.find(u => u.username === usuario && u.estado === 'activo');
         if (!existe) {
             localStorage.removeItem('loggedInUser');
+            localStorage.removeItem('loggedInRol');
             verificarSesion();
             return;
         }
+        localStorage.setItem('loggedInRol', existe.rol || 'recepcion');
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('main-app').classList.remove('hidden');
+        aplicarPermisosPorRol();
         mostrarSeccion('resumen');
     } else {
         document.getElementById('login-section').classList.remove('hidden');
